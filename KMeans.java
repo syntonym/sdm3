@@ -127,6 +127,10 @@ public class KMeans {
 
 	private void algorithmus(Double[][] points, List<Integer>[][] buckets) {
 	
+	    /*
+	     * centroid initialisation and hashing
+	     */
+	     
 	    int clusters = 15;
 	    int dimension = 10;
 	    int max = points.length;
@@ -143,12 +147,55 @@ public class KMeans {
             centroids[i] = points[randomNum];
         }
         
-        Integer centroidBuckets[][] = new Integer[clusters][dimension];
+        Integer centroidBuckets[][] = new Integer[clusters][amountHashFuncs];
         
         // calculate the hash value for every centroid for every hash function
         for (int i = 0; i < clusters; ++i) {
             for (int j = 0; j < hashFuncs.length; ++j) {
                 centroidBuckets[i][j] = getBucket (centroids[i], j);
+            }
+        }
+        
+        
+        /*
+         * let's get serious now...
+         */
+        
+        // on each index we save the centroid index for the corresponding point
+        Integer pointsClusterMap [] = new Integer[points.length];
+        
+        // isOnlyCentroid is true on index i if centroid i is the only centroid in its field.
+        Boolean isOnlyCentroid [] = new Boolean[clusters];
+        
+        for (int i = 0; i < clusters; ++i) {
+            isOnlyCentroid[i] = true;
+        }
+        
+        // check which centroids are alone in its field
+        for (int i = 0; i < clusters; ++i) {
+            for (int j = i + 1; j < clusters; ++j) {
+                int sim = 0;
+                for (int k = 0; k < amountHashFuncs; ++k) {
+                    if (centroidBuckets[i][k] == centroidBuckets[j][k]) {
+                        sim += 1;
+                        if (sim == amountHashFuncs) {
+                            isOnlyCentroid[i] = false;
+                            isOnlyCentroid[j] = false;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // assign all corresponding points to all lonely centroids
+        for (int i = 0; i <  clusters; ++i) {
+            if (isOnlyCentroid[i]) {
+                for (int j = 0; j < amountHashFuncs; ++j) {
+                    List<Integer> pointsBuf = buckets[j][centroidBuckets[i][j]];
+                    for (int k = 0; k < pointsBuf.size(); ++k) {
+                        pointsClusterMap[pointsBuf.get(k)] = i;
+                    }
+                }
             }
         }
 	}
