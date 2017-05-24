@@ -272,7 +272,7 @@ public class KMeans {
     /**
 	 * distance between to datapoints
 	 *
-	 * this method returns the euclidian distance between to datapoints
+	 * this method returns the euclidian distance between two datapoints
 	 * @param a    Double[]
 	 * @param b    Double[]
 	 **/
