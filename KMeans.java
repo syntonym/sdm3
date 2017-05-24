@@ -31,7 +31,7 @@ public class KMeans {
 
 		double distance = 0;
 
-		for (int i=0; i<a.length; i++) {
+		for (int i=0; i<a.length; ++i) {
 			distance += Math.pow(a[i]-b[i],2);
 		}
 
