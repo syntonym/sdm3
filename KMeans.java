@@ -6,9 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.IllegalArgumentException;
 
-import java.lang.IllegalArgumentException;
-import 
-
 public class KMeans {
 
     private Double hashFuncs[][] = 
