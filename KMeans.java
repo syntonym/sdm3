@@ -112,7 +112,7 @@ public class KMeans {
 	        throw new IllegalArgumentException("vector dimensions have to match!");
         }
         
-	    Double sum = 0;
+	    Double sum = 0.0;
 	    for (int i = 0; i < point.length; ++i) {
 	        sum += (point[i] * hashFuncs[func][i]);
 	    }
