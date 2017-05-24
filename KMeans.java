@@ -1,18 +1,19 @@
+import java.util.*;
 
 public class KMeans {
 
     private Double hashFuncs[][] = 
         {
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-            {0, 1, 0, 0, 0, 0, 0, 0, 0, 0}
-            {0, 0, 1, 0, 0, 0, 0, 0, 0, 0}
-            {0, 0, 0, 1, 0, 0, 0, 0, 0, 0}
-            {0, 0, 0, 0, 1, 0, 0, 0, 0, 0}
-            {0, 0, 0, 0, 0, 1, 0, 0, 0, 0}
-            {0, 0, 0, 0, 0, 0, 1, 0, 0, 0}
-            {0, 0, 0, 0, 0, 0, 0, 1, 0, 0}
-            {0, 0, 0, 0, 0, 0, 0, 0, 1, 0}
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+            {1., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
+            {0., 1., 0., 0., 0., 0., 0., 0., 0., 0.},
+            {0., 0., 1., 0., 0., 0., 0., 0., 0., 0.},
+            {0., 0., 0., 1., 0., 0., 0., 0., 0., 0.},
+            {0., 0., 0., 0., 1., 0., 0., 0., 0., 0.},
+            {0., 0., 0., 0., 0., 1., 0., 0., 0., 0.},
+            {0., 0., 0., 0., 0., 0., 1., 0., 0., 0.},
+            {0., 0., 0., 0., 0., 0., 0., 1., 0., 0.},
+            {0., 0., 0., 0., 0., 0., 0., 0., 1., 0.},
+            {0., 0., 0., 0., 0., 0., 0., 0., 0., 1.},
         };
 
 	public static void main(String[] args) {
@@ -61,7 +62,7 @@ public class KMeans {
 	    int dimension = 10;
 	    int max = points.length;
 	    
-	    Double centroids[clusters][dimension];
+	    Double centroids[][] = new Double[clusters][dimension];
 	    
 	    int randomNum;
 	    
@@ -72,7 +73,7 @@ public class KMeans {
             centroids[i] = points[randomNum];
         }
         
-        Double cHashValues[clusters][dimension];
+        Double cHashValues[][] = new Double[clusters][dimension];
         
         // calculate the hash value for every centroid for every hash function
         for (int i = 0; i < clusters; ++i) {
