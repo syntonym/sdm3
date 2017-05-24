@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.IllegalArgumentException;
+import java.lang.NullPointerException;
 
 public class KMeans {
 
@@ -33,7 +34,12 @@ public class KMeans {
 		KMeans m = new KMeans();
 		CommandLine config = m.readArgs(args);
 
-		Double[][] data = m.readFile(config.getOptionValue("testdata"));
+		try {
+			Double[][] data = m.readFile(config.getOptionValue("testdata"));
+		} catch (NullPointerException e) {
+			System.err.println("Konnte das File nicht finden\n" + e);
+			System.exit(1);
+		}
 
 	}
 
@@ -70,14 +76,16 @@ public class KMeans {
 
 		        lines.add(line);
 		    }
-		} catch (IOException e) {
-			System.err.println("Error :" + e);
+		} catch (IOException|NullPointerException e) {
+			System.err.println("Konnte das File nicht finden\n" + e);
+			System.exit(1);
 		} finally {
 			try {
 				buff.close();
 				myFile.close();
-			} catch (IOException e) {
-				System.err.println("Error :" + e);
+			} catch (IOException|NullPointerException e) {
+				System.err.println("Error1 :" + e);
+				System.exit(1);
 			}
 		}
  
