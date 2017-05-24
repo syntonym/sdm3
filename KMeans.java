@@ -70,9 +70,19 @@ public class KMeans {
 			}
 		}
  
-		final Double[][] valuesArray = new Double[lines.size()][];
+		final String[][] valuesArray = new String[lines.size()][];
 		int cnt = 0;
-		for (final String line : lines) valuesArray[cnt++] = Double.parseDouble(line.split(","));
+		for (final String line : lines) {
+			valuesArray[cnt++] = line.split(",");
+		}
+
+		Double[][] valuesDouble = new Double[lines.size()][valuesArray[0].size()];
+
+		for (int i=0; i<lines.size(); ++i) {
+			for (int j=0; j<valuesArray[0].size(); ++j) {
+				valuesDouble[i][j] = Double.parseDouble(valuesArray[i][j]);
+			}
+		}
  
 		return valuesArray;
 	}
