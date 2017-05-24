@@ -123,7 +123,7 @@ public class KMeans {
      *    to obtain bucket borders, which should be saved
      *    in the field buckets
      */
-    private ArrayList<HashMap<Integer, List<Integer>>> hash(Double[][] points) {
+    private ArrayList<HashMap<Integer, Set<Integer>>> hash(Double[][] points) {
         ArrayList<HashMap<Integer, Set<Integer>>> buckets = new ArrayList<HashMap<Integer, Set<Integer>>>();
 
         for (int funci=0; funci<hashFuncs.length; funci++) {
@@ -161,7 +161,7 @@ public class KMeans {
 
         }
 
-        return null;
+        return buckets;
     }
 
     /**
