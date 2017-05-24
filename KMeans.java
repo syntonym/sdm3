@@ -11,7 +11,7 @@ public class KMeans {
 
     private Double[] bucketWidths = {10., 10., 10., 10., 10., 10., 10., 10., 10., 10.};
     private int amountHashFuncs = 10;
-    private Double hashFuncs[][] = 
+    private Double hashFuncs[][] =
     {
         {1., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
         {0., 1., 0., 0., 0., 0., 0., 0., 0., 0.},
@@ -35,12 +35,24 @@ public class KMeans {
         KMeans m = new KMeans();
         CommandLine config = m.readArgs(args);
 
-		try {
-			Double[][] data = m.readFile(config.getOptionValue("testdata"));
-		} catch (NullPointerException e) {
-			System.err.println("Konnte das File nicht finden\n" + e);
-			System.exit(1);
-		}
+        try {
+            Double[][] data = m.readFile(config.getOptionValue("testdata"));
+        } catch (NullPointerException e) {
+            System.err.println("Konnte das File nicht finden\n" + e);
+            System.exit(1);
+        }
+
+        double startTime;
+    	double endTime;
+		double timeKMeans;
+
+		startTime = System.currentTimeMillis();
+		    //place your function here
+		endTime = System.currentTimeMillis();
+
+		timeKMeans = endTime - startTime;
+
+		System.out.print("time: " + timeKMeans + "\n");
 
     }
 
@@ -65,11 +77,18 @@ public class KMeans {
             formatter.printHelp("KMeans", options);
             System.exit(0);
         }
-        
+
 
         return cmd;
     }
-
+    
+    /**
+	 * readFile
+	 *
+	 * this method reads in the csv-file, parse it
+     * and returns the corresponding Double[][] values
+	 * @param path String - path to file
+	 **/
     private Double[][] readFile(String path) {
 
         // Einlesen des Files und spliten
@@ -83,18 +102,18 @@ public class KMeans {
             String line;
 
             while ((line = buff.readLine()) != null) {
-		lines.add(line);
+                lines.add(line);
             }
-		} catch (IOException|NullPointerException e) {
-			System.err.println("Konnte das File nicht finden\n" + e);
-			System.exit(1);
+        } catch (IOException|NullPointerException e) {
+            System.err.println("Konnte das File nicht finden\n" + e);
+            System.exit(1);
         } finally {
             try {
                 buff.close();
                 myFile.close();
-			} catch (IOException|NullPointerException e) {
-				System.err.println("Error1 :" + e);
-				System.exit(1);
+            } catch (IOException|NullPointerException e) {
+                System.err.println("Error1 :" + e);
+                System.exit(1);
             }
         }
 
@@ -123,7 +142,13 @@ public class KMeans {
      *    to obtain bucket borders, which should be saved
      *    in the field buckets
      */
-    private List<Integer>[][] hash(Double[][] points) {
+    private ArrayList<HashMap<Integer, Set<Integer>>> hash(Double[][] points) {
+        ArrayList<HashMap<Integer, Set<Integer>>> buckets = new ArrayList<HashMap<Integer, Set<Integer>>>();
+
+        for (int funci=0; funci<hashFuncs.length; funci++) {
+            buckets.add(funci, new HashMap<>());
+        }
+
         Double[] min = new Double[points[0].length];
         for (int i=0; i<min.length; i++) {
             min[i] = Double.POSITIVE_INFINITY;
@@ -142,13 +167,20 @@ public class KMeans {
                     max[j] = points[i][j];
                 }
             }
+
+            for (int funci=0; funci<hashFuncs.length; funci++) {
+                Integer bucketIndex = getBucket(points[i], funci);
+                Set<Integer> set = buckets.get(funci).get(bucketIndex);
+                if (set == null) {
+                    set = new HashSet<>();
+                    buckets.get(funci).put(bucketIndex, set);
+                }
+                set.add(bucketIndex);
+            }
+
         }
 
-        for (int funcI=0; funcI<hashFuncs.length; funcI++) {
-
-
-        }
-        return null;
+        return buckets;
     }
 
     /**
@@ -167,7 +199,6 @@ public class KMeans {
 
         return new Double(sum / (bucketWidths[func])).intValue();
     }
-
 
 	private void algorithm (Double[][] points, Set<Integer>[][] buckets) {
 	
@@ -191,33 +222,37 @@ public class KMeans {
             randomNum = rand.nextInt(max + 1);
             centroids[i] = points[randomNum];
         }
-        
+
         Integer centroidBuckets[][] = new Integer[clusters][amountHashFuncs];
-        
+
         // calculate the hash value for every centroid for every hash function
         for (int i = 0; i < clusters; ++i) {
             for (int j = 0; j < hashFuncs.length; ++j) {
                 centroidBuckets[i][j] = getBucket (centroids[i], j);
             }
         }
-        
-        
+
+
         /*
          * let's get serious now...
          */
-        
+
         // on each index we save the centroid index for the corresponding point
         Integer pointsClusterMap [] = new Integer[points.length];
-        
+
         // isOnlyCentroid is true on index i if centroid i is the only centroid in its field.
         Boolean isOnlyCentroid [] = new Boolean[clusters];
+<<<<<<< HEAD
         Integer fieldID [] = new Integer[clusters];
         
+=======
+
+>>>>>>> 1447d24b6258761aadb47ab8290612dc5d6b1995
         for (int i = 0; i < clusters; ++i) {
             isOnlyCentroid[i] = true;
             fieldID[i] = i;
         }
-        
+
         // check which centroids are alone in its field
         for (int i = 0; i < clusters; ++i) {
             for (int j = i + 1; j < clusters; ++j) {
@@ -235,7 +270,7 @@ public class KMeans {
                 }
             }
         }
-        
+
         // assign all corresponding points to all lonely centroids
         for (int i = 0; i <  clusters; ++i) {
             if (isOnlyCentroid[i]) {
@@ -260,6 +295,7 @@ public class KMeans {
                 }
             }
         }
+<<<<<<< HEAD
         
         // assign points naively to centroids in field with more than one cluster
         for (int i = 0; i < clusters; ++i) {
@@ -287,7 +323,17 @@ public class KMeans {
 
         // TODO: calculate all other points naively to any centroid
 	}
+=======
+    }
+>>>>>>> 1447d24b6258761aadb47ab8290612dc5d6b1995
 
+    /**
+	 * distance between to datapoints
+	 *
+	 * this method returns the euclidian distance between two datapoints
+	 * @param a    Double[]
+	 * @param b    Double[]
+	 **/
     private Double distance(Double[] a, Double[] b) {
 
         double distance = 0;
