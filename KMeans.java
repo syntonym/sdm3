@@ -269,6 +269,13 @@ public class KMeans {
         }
     }
 
+    /**
+	 * distance between to datapoints
+	 *
+	 * this method returns the euclidian distance between to datapoints
+	 * @param a    Double[]
+	 * @param b    Double[]
+	 **/
     private Double distance(Double[] a, Double[] b) {
 
         double distance = 0;
