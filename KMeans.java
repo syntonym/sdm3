@@ -1,6 +1,6 @@
 import java.util.*;
 import java.lang.*;
-import org.apache.commmons.cli.*;
+import org.apache.commons.cli.*;
 
 public class KMeans {
 
