@@ -24,6 +24,8 @@ public class KMeans {
         };
     
     private int amountBuckets;
+    
+    // save the bucket borders for each function, ignoring the first border (0)
     private Double buckets [][] = new Double [amountHashFuncs][amountBuckets];
     
 	public static void main(String[] args) {
@@ -84,7 +86,8 @@ public class KMeans {
 	 * zweites Argument Bucket
 	 * TODO:
      *  - calculate the max and the min hash values
-     *    to obtain bucket borders
+     *    to obtain bucket borders, which should be saved
+     *    in the field buckets
 	 */
 	private List<Integer>[][] hash(Double[][] points) {
 		return null;
