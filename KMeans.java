@@ -42,6 +42,18 @@ public class KMeans {
             System.exit(1);
         }
 
+        double startTime;
+    	double endTime;
+		double timeKMeans;
+
+		startTime = System.currentTimeMillis();
+		    //place your function here
+		endTime = System.currentTimeMillis();
+
+		timeKMeans = endTime - startTime;
+
+		System.out.print("time: " + timeKMeans + "\n");
+
     }
 
     private CommandLine readArgs(String[] args) {
