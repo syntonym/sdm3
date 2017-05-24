@@ -169,12 +169,13 @@ public class KMeans {
     }
 
 
-	private void algorithmus(Double[][] points, List<Integer>[][] buckets) {
+	private void algorithm (Double[][] points, Set<Integer>[][] buckets) {
 	
 	    /*
 	     * centroid initialisation and hashing
 	     */
 	     
+	    int p = amountHashFuncs; // which corresponds 100% match
 	    int clusters = 15;
 	    int dimension = 10;
 	    int max = points.length;
@@ -210,9 +211,11 @@ public class KMeans {
         
         // isOnlyCentroid is true on index i if centroid i is the only centroid in its field.
         Boolean isOnlyCentroid [] = new Boolean[clusters];
+        Integer fieldID [] = new Integer[clusters];
         
         for (int i = 0; i < clusters; ++i) {
             isOnlyCentroid[i] = true;
+            fieldID[i] = i;
         }
         
         // check which centroids are alone in its field
@@ -222,7 +225,9 @@ public class KMeans {
                 for (int k = 0; k < amountHashFuncs; ++k) {
                     if (centroidBuckets[i][k] == centroidBuckets[j][k]) {
                         sim += 1;
-                        if (sim == amountHashFuncs) {
+                        // TODO: does this work!?
+                        if (sim >= p) {
+                            fieldID[j] = fieldID[i];
                             isOnlyCentroid[i] = false;
                             isOnlyCentroid[j] = false;
                         }
@@ -234,14 +239,53 @@ public class KMeans {
         // assign all corresponding points to all lonely centroids
         for (int i = 0; i <  clusters; ++i) {
             if (isOnlyCentroid[i]) {
+                // we get amountHashFuncs (default 10) sets of Integers, which 
+                // represent the index of all points in the corresponding bucket
+                // TODO: change native arrays to ArrayLists
+                Set<Integer> allBucketPoints[] = new Set<Integer>[amountHashFuncs];
                 for (int j = 0; j < amountHashFuncs; ++j) {
-                    List<Integer> pointsBuf = buckets[j][centroidBuckets[i][j]];
-                    for (int k = 0; k < pointsBuf.size(); ++k) {
-                        pointsClusterMap[pointsBuf.get(k)] = i;
-                    }
+                    allBucketPoints[j] = buckets[j][centroidBuckets[i][j]];
+                }
+                
+                // we calculate the intersection of all sets to obtain
+                // all points which are in the exact same field as the centroid
+                Set<Integer> bucketPoints = allBucketPoints[0];
+                for (int j = 1; j < amountHashFuncs; ++j) {
+                    bucketPoints.retainAll (allBucketPoints[j]);
+                }
+                
+                // finally we assign the clusterIds to the points
+                for (int j = 0; j < bucketPoints.size(); ++j) {
+                    pointsClusterMap[bucketPoints.get(j)] = i;
                 }
             }
         }
+        
+        // assign points naively to centroids in field with more than one cluster
+        for (int i = 0; i < clusters; ++i) {
+            if (!isOnlyCentroid[i]) {
+                // we get amountHashFuncs (default 10) sets of Integers, which 
+                // represent the index of all points in the corresponding bucket
+                // TODO: change native arrays to ArrayLists
+                Set<Integer>[] allBucketPoints = new Set<Integer>[amountHashFuncs];
+                for (int j = 0; j < amountHashFuncs; ++j) {
+                    allBucketPoints[j] = buckets[j][centroidBuckets[i][j]];
+                }
+                
+                // we calculate the intersection of all sets to obtain
+                // all points which are in the exact same field as the centroids are
+                Set<Integer> bucketPoints = allBucketPoints[0];
+                for (int j = 1; j < amountHashFuncs; ++j) {
+                    bucketPoints.retainAll (allBucketPoints[j]);
+                }
+                
+                // TODO:
+                // we calculate the minimum distance to 
+                // all centroids in the same field
+            }
+        }
+
+        // TODO: calculate all other points naively to any centroid
 	}
 
     private Double distance(Double[] a, Double[] b) {
