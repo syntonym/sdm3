@@ -8,6 +8,7 @@ import java.lang.IllegalArgumentException;
 
 public class KMeans {
 
+    private int amountHashFuncs = 10;
     private Double hashFuncs[][] = 
         {
             {1., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
@@ -21,9 +22,10 @@ public class KMeans {
             {0., 0., 0., 0., 0., 0., 0., 0., 1., 0.},
             {0., 0., 0., 0., 0., 0., 0., 0., 0., 1.},
         };
-        
-        
-
+    
+    private int amountBuckets;
+    private Double buckets [][] = new Double [amountHashFuncs][amountBuckets];
+    
 	public static void main(String[] args) {
 
 		KMeans m = new KMeans();
@@ -92,20 +94,22 @@ public class KMeans {
 	 *  calculates the hash value of a point and a hash function as
 	 *  a vector-vector-product
 	 */
-	private Integer getBucket (Double point[], Double func[]) {
-	    if (point.length != func.length) {
+	private Integer getBucket (Double point[], int func) {
+	    if (point.length != hashFuncs[func].length) {
 	        throw new IllegalArgumentException("vector dimensions have to match!");
         }
         
 	    Double sum;
 	    for (int i = 0; i < point.length; ++i) {
-	        sum += (point[i] * func[i]);
+	        sum += (point[i] * hashFuncs[func][i]);
 	    }
 	    
 	    Integer bucket = 0;
-	    while () {
-	    
+	    while (sum > buckets[func][bucket]) {
+	        ++bucket;
 	    }
+	    
+	    return bucket;
 	}
 
 	private void algorithmus(Double[][] points, List<Integer>[][] buckets) {
@@ -126,12 +130,12 @@ public class KMeans {
             centroids[i] = points[randomNum];
         }
         
-        Double centroidBuckets[][] = new Double[clusters][dimension];
+        Integer centroidBuckets[][] = new Integer[clusters][dimension];
         
         // calculate the hash value for every centroid for every hash function
         for (int i = 0; i < clusters; ++i) {
             for (int j = 0; j < hashFuncs.length; ++j) {
-                centroidBuckets[i][j] = getBucket (centroids[i], hashFuncs[j]);
+                centroidBuckets[i][j] = getBucket (centroids[i], j);
             }
         }
 	}
