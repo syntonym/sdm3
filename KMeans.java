@@ -128,7 +128,6 @@ public class KMeans {
         for (int i=0; i<min.length; i++) {
             min[i] = Double.POSITIVE_INFINITY;
         }
-
         Double[] max = new Double[points[0].length];
         for (int i=0; i<max.length; i++) {
             max[i] = Double.NEGATIVE_INFINITY;
@@ -145,68 +144,116 @@ public class KMeans {
             }
         }
 
-            for (int funcI=0; funcI<hashFuncs.length; funcI++) {
+        for (int funcI=0; funcI<hashFuncs.length; funcI++) {
 
 
-            }
-            return null;
+        }
+        return null;
+    }
+
+    /**
+     *  calculates the hash value of a point and a hash function as
+     *  a vector-vector-product
+     */
+    private Integer getBucket (Double point[], int func) {
+        if (point.length != hashFuncs[func].length) {
+            throw new IllegalArgumentException("vector dimensions have to match!");
         }
 
-        /**
-         *  calculates the hash value of a point and a hash function as
-         *  a vector-vector-product
+        Double sum = 0.0;
+        for (int i = 0; i < point.length; ++i) {
+            sum += (point[i] * hashFuncs[func][i]);
+        }
+
+        return new Double(sum / (bucketWidths[func])).intValue();
+    }
+
+
+	private void algorithmus(Double[][] points, List<Integer>[][] buckets) {
+	
+	    /*
+	     * centroid initialisation and hashing
+	     */
+	     
+	    int clusters = 15;
+	    int dimension = 10;
+	    int max = points.length;
+	    
+	    Double centroids[][] = new Double[clusters][dimension];
+	    
+	    Random rand = new Random();
+	    int randomNum;
+	    
+	    for (int i = 0; i < clusters; ++i) {
+	        // take a point at a random index 
+	        // position from points and use it as centroid
+            randomNum = rand.nextInt(max + 1);
+            centroids[i] = points[randomNum];
+        }
+        
+        Integer centroidBuckets[][] = new Integer[clusters][amountHashFuncs];
+        
+        // calculate the hash value for every centroid for every hash function
+        for (int i = 0; i < clusters; ++i) {
+            for (int j = 0; j < hashFuncs.length; ++j) {
+                centroidBuckets[i][j] = getBucket (centroids[i], j);
+            }
+        }
+        
+        
+        /*
+         * let's get serious now...
          */
-        private Integer getBucket (Double point[], int func) {
-            if (point.length != hashFuncs[func].length) {
-                throw new IllegalArgumentException("vector dimensions have to match!");
-            }
-
-            Double sum = 0.0;
-            for (int i = 0; i < point.length; ++i) {
-                sum += (point[i] * hashFuncs[func][i]);
-            }
-
-            return new Double(sum / (bucketWidths[func])).intValue();
+        
+        // on each index we save the centroid index for the corresponding point
+        Integer pointsClusterMap [] = new Integer[points.length];
+        
+        // isOnlyCentroid is true on index i if centroid i is the only centroid in its field.
+        Boolean isOnlyCentroid [] = new Boolean[clusters];
+        
+        for (int i = 0; i < clusters; ++i) {
+            isOnlyCentroid[i] = true;
         }
-
-        private void algorithmus(Double[][] points, List<Integer>[][] buckets) {
-
-            int clusters = 15;
-            int dimension = 10;
-            int max = points.length;
-
-            Double centroids[][] = new Double[clusters][dimension];
-
-            Random rand = new Random();
-            int randomNum;
-
-            for (int i = 0; i < clusters; ++i) {
-                // take a point at a random index 
-                // position from points and use it as centroid
-                randomNum = rand.nextInt(max + 1);
-                centroids[i] = points[randomNum];
-            }
-
-            Integer centroidBuckets[][] = new Integer[clusters][dimension];
-
-            // calculate the hash value for every centroid for every hash function
-            for (int i = 0; i < clusters; ++i) {
-                for (int j = 0; j < hashFuncs.length; ++j) {
-                    centroidBuckets[i][j] = getBucket (centroids[i], j);
+        
+        // check which centroids are alone in its field
+        for (int i = 0; i < clusters; ++i) {
+            for (int j = i + 1; j < clusters; ++j) {
+                int sim = 0;
+                for (int k = 0; k < amountHashFuncs; ++k) {
+                    if (centroidBuckets[i][k] == centroidBuckets[j][k]) {
+                        sim += 1;
+                        if (sim == amountHashFuncs) {
+                            isOnlyCentroid[i] = false;
+                            isOnlyCentroid[j] = false;
+                        }
+                    }
                 }
             }
         }
-
-        private Double distance(Double[] a, Double[] b) {
-
-            double distance = 0;
-
-            for (int i=0; i<a.length; ++i) {
-                distance += Math.pow(a[i]-b[i],2);
+        
+        // assign all corresponding points to all lonely centroids
+        for (int i = 0; i <  clusters; ++i) {
+            if (isOnlyCentroid[i]) {
+                for (int j = 0; j < amountHashFuncs; ++j) {
+                    List<Integer> pointsBuf = buckets[j][centroidBuckets[i][j]];
+                    for (int k = 0; k < pointsBuf.size(); ++k) {
+                        pointsClusterMap[pointsBuf.get(k)] = i;
+                    }
+                }
             }
+        }
+	}
 
-            return Math.sqrt(distance);
+    private Double distance(Double[] a, Double[] b) {
+
+        double distance = 0;
+
+        for (int i=0; i<a.length; ++i) {
+            distance += Math.pow(a[i]-b[i],2);
         }
 
-
+        return Math.sqrt(distance);
     }
+
+
+}
