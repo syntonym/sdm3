@@ -81,7 +81,14 @@ public class KMeans {
 
         return cmd;
     }
-
+    
+    /**
+	 * readFile
+	 *
+	 * this method reads in the csv-file, parse it
+     * and returns the corresponding Double[][] values
+	 * @param path String - path to file
+	 **/
     private Double[][] readFile(String path) {
 
         // Einlesen des Files und spliten
