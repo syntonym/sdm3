@@ -1,6 +1,10 @@
 import java.util.*;
 import java.lang.*;
 import org.apache.commmons.cli.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.IllegalArgumentException;
 
 public class KMeans {
 
@@ -66,7 +70,7 @@ public class KMeans {
  
 		final Double[][] valuesArray = new Double[lines.size()][];
 		int cnt = 0;
-		for (final String line : lines) valuesArray[cnt++] = line.split(",");
+		for (final String line : lines) valuesArray[cnt++] = Double.parseDouble(line.split(","));
  
 		return valuesArray;
 	}
@@ -85,7 +89,7 @@ public class KMeans {
 	 */
 	private Integer calcHash (Double point[], Double func[]) {
 	    if (point.length != func.length) {
-	        throw IllegalArgumentException("vector dimensions have to match!");
+	        throw new IllegalArgumentException("vector dimensions have to match!");
         }
         
 	    Integer sum;
