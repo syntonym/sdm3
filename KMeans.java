@@ -1,5 +1,8 @@
 import java.util.*;
 
+import java.lang.IllegalArgumentException;
+import 
+
 public class KMeans {
 
     private Double hashFuncs[][] = 
@@ -15,6 +18,8 @@ public class KMeans {
             {0., 0., 0., 0., 0., 0., 0., 0., 1., 0.},
             {0., 0., 0., 0., 0., 0., 0., 0., 0., 1.},
         };
+        
+        
 
 	public static void main(String[] args) {
 
@@ -66,6 +71,9 @@ public class KMeans {
 	/**
 	 * Erstes Argument Hashfunktion
 	 * zweites Argument Bucket
+	 * TODO:
+     *  - calculate the max and the min hash values
+     *    to obtain bucket borders
 	 */
 	private List<Integer>[][] hash(Double[][] points) {
 	}
@@ -74,17 +82,20 @@ public class KMeans {
 	 *  calculates the hash value of a point and a hash function as
 	 *  a vector-vector-product
 	 */
-	private Integer calcHash (Double point[], Double func[]) {
+	private Integer getBucket (Double point[], Double func[]) {
 	    if (point.length != func.length) {
 	        throw IllegalArgumentException("vector dimensions have to match!");
         }
         
-	    Integer sum;
+	    Double sum;
 	    for (int i = 0; i < point.length; ++i) {
 	        sum += (point[i] * func[i]);
 	    }
 	    
-	    return sum;
+	    Integer bucket = 0;
+	    while () {
+	    
+	    }
 	}
 
 	private void algorithmus(Double[][] points, List<Integer>[][] buckets) {
@@ -95,6 +106,7 @@ public class KMeans {
 	    
 	    Double centroids[][] = new Double[clusters][dimension];
 	    
+	    Random rand;
 	    int randomNum;
 	    
 	    for (int i = 0; i < clusters; ++i) {
@@ -104,12 +116,12 @@ public class KMeans {
             centroids[i] = points[randomNum];
         }
         
-        Double cHashValues[][] = new Double[clusters][dimension];
+        Double centroidBuckets[][] = new Double[clusters][dimension];
         
         // calculate the hash value for every centroid for every hash function
         for (int i = 0; i < clusters; ++i) {
             for (int j = 0; j < hashFuncs.length; ++j) {
-                cHashValues[i][j] = calcHash (centroids[i], hashFuncs[j]);
+                centroidBuckets[i][j] = getBucket (centroids[i], hashFuncs[j]);
             }
         }
 	}
