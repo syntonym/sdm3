@@ -78,15 +78,15 @@ public class KMeans {
 			valuesArray[cnt++] = line.split(",");
 		}
 
-		Double[][] valuesDouble = new Double[lines.size()][valuesArray[0].size()];
+		Double[][] valuesDouble = new Double[lines.size()][valuesArray[0].length];
 
 		for (int i=0; i<lines.size(); ++i) {
-			for (int j=0; j<valuesArray[0].size(); ++j) {
+			for (int j=0; j<valuesArray[0].length; ++j) {
 				valuesDouble[i][j] = Double.parseDouble(valuesArray[i][j]);
 			}
 		}
  
-		return valuesArray;
+		return valuesDouble;
 	}
 
 	/**
