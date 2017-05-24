@@ -28,6 +28,15 @@ public class KMeans {
 	}
 
 	private Double distance(Double[] a, Double[] b) {
-		return null;
+
+		double distance = 0;
+
+		for (int i=0; i<a.length; i++) {
+			distance += Math.pow(a[i]-b[i],2);
+		}
+
+		return Math.sqrt(distance);
 	}
+
+
 }
