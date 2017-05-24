@@ -43,16 +43,16 @@ public class KMeans {
         }
 
         double startTime;
-    	double endTime;
-		double timeKMeans;
+        double endTime;
+        double timeKMeans;
 
-		startTime = System.currentTimeMillis();
-		    //place your function here
-		endTime = System.currentTimeMillis();
+        startTime = System.currentTimeMillis();
+        //place your function here
+        endTime = System.currentTimeMillis();
 
-		timeKMeans = endTime - startTime;
+        timeKMeans = endTime - startTime;
 
-		System.out.print("time: " + timeKMeans + "\n");
+        System.out.print("time: " + timeKMeans + "\n");
 
     }
 
@@ -81,14 +81,14 @@ public class KMeans {
 
         return cmd;
     }
-    
+
     /**
-	 * readFile
-	 *
-	 * this method reads in the csv-file, parse it
+     * readFile
+     *
+     * this method reads in the csv-file, parse it
      * and returns the corresponding Double[][] values
-	 * @param path String - path to file
-	 **/
+     * @param path String - path to file
+     **/
     private Double[][] readFile(String path) {
 
         // Einlesen des Files und spliten
@@ -200,25 +200,25 @@ public class KMeans {
         return new Double(sum / (bucketWidths[func])).intValue();
     }
 
-	private void algorithm (Double[][] points, Set<Integer>[][] buckets) {
-	
-	    /*
-	     * centroid initialisation and hashing
-	     */
-	     
-	    int p = amountHashFuncs; // which corresponds 100% match
-	    int clusters = 15;
-	    int dimension = 10;
-	    int max = points.length;
-	    
-	    Double centroids[][] = new Double[clusters][dimension];
-	    
-	    Random rand = new Random();
-	    int randomNum;
-	    
-	    for (int i = 0; i < clusters; ++i) {
-	        // take a point at a random index 
-	        // position from points and use it as centroid
+    private void algorithm (Double[][] points, Set<Integer>[][] buckets) {
+
+        /*
+         * centroid initialisation and hashing
+         */
+
+        int p = amountHashFuncs; // which corresponds 100% match
+        int clusters = 15;
+        int dimension = 10;
+        int max = points.length;
+
+        Double centroids[][] = new Double[clusters][dimension];
+
+        Random rand = new Random();
+        int randomNum;
+
+        for (int i = 0; i < clusters; ++i) {
+            // take a point at a random index
+            // position from points and use it as centroid
             randomNum = rand.nextInt(max + 1);
             centroids[i] = points[randomNum];
         }
@@ -270,62 +270,62 @@ public class KMeans {
         // assign all corresponding points to all lonely centroids
         for (int i = 0; i <  clusters; ++i) {
             if (isOnlyCentroid[i]) {
-                // we get amountHashFuncs (default 10) sets of Integers, which 
+                // we get amountHashFuncs (default 10) sets of Integers, which
                 // represent the index of all points in the corresponding bucket
                 // TODO: change native arrays to ArrayLists
-                Set<Integer> allBucketPoints[] = new Set<Integer>[amountHashFuncs];
+                ArrayList<Set<Integer>> allBucketPoints = new ArrayList<Set<Integer>>(amountHashFuncs);
                 for (int j = 0; j < amountHashFuncs; ++j) {
-                    allBucketPoints[j] = buckets[j][centroidBuckets[i][j]];
+                    allBucketPoints.add(j, buckets[j][centroidBuckets[i][j]]);
                 }
-                
+
                 // we calculate the intersection of all sets to obtain
                 // all points which are in the exact same field as the centroid
-                Set<Integer> bucketPoints = allBucketPoints[0];
+                Set<Integer> bucketPoints = allBucketPoints.get(0);
                 for (int j = 1; j < amountHashFuncs; ++j) {
-                    bucketPoints.retainAll (allBucketPoints[j]);
+                    bucketPoints.retainAll (allBucketPoints.get(j));
                 }
-                
+
                 // finally we assign the clusterIds to the points
-                for (int j = 0; j < bucketPoints.size(); ++j) {
-                    pointsClusterMap[bucketPoints.get(j)] = i;
+                for (Integer bi : bucketPoints) {
+                    pointsClusterMap[bi] = i;
                 }
             }
         }
-        
+
         // assign points naively to centroids in field with more than one cluster
         for (int i = 0; i < clusters; ++i) {
             if (!isOnlyCentroid[i]) {
-                // we get amountHashFuncs (default 10) sets of Integers, which 
+                // we get amountHashFuncs (default 10) sets of Integers, which
                 // represent the index of all points in the corresponding bucket
                 // TODO: change native arrays to ArrayLists
-                Set<Integer>[] allBucketPoints = new Set<Integer>[amountHashFuncs];
+                ArrayList<Set<Integer>> allBucketPoints = new ArrayList<Set<Integer>>(amountHashFuncs);
                 for (int j = 0; j < amountHashFuncs; ++j) {
-                    allBucketPoints[j] = buckets[j][centroidBuckets[i][j]];
+                    allBucketPoints.add(j, buckets[j][centroidBuckets[i][j]]);
                 }
-                
+
                 // we calculate the intersection of all sets to obtain
                 // all points which are in the exact same field as the centroids are
-                Set<Integer> bucketPoints = allBucketPoints[0];
+                Set<Integer> bucketPoints = allBucketPoints.get(0);
                 for (int j = 1; j < amountHashFuncs; ++j) {
-                    bucketPoints.retainAll (allBucketPoints[j]);
+                    bucketPoints.retainAll (allBucketPoints.get(j));
                 }
-                
+
                 // TODO:
-                // we calculate the minimum distance to 
+                // we calculate the minimum distance to
                 // all centroids in the same field
             }
         }
 
         // TODO: calculate all other points naively to any centroid
-	}
+    }
 
     /**
-	 * distance between to datapoints
-	 *
-	 * this method returns the euclidian distance between two datapoints
-	 * @param a    Double[]
-	 * @param b    Double[]
-	 **/
+     * distance between to datapoints
+     *
+     * this method returns the euclidian distance between two datapoints
+     * @param a    Double[]
+     * @param b    Double[]
+     **/
     private Double distance(Double[] a, Double[] b) {
 
         double distance = 0;
