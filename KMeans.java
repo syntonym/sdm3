@@ -242,12 +242,8 @@ public class KMeans {
 
         // isOnlyCentroid is true on index i if centroid i is the only centroid in its field.
         Boolean isOnlyCentroid [] = new Boolean[clusters];
-<<<<<<< HEAD
         Integer fieldID [] = new Integer[clusters];
-        
-=======
 
->>>>>>> 1447d24b6258761aadb47ab8290612dc5d6b1995
         for (int i = 0; i < clusters; ++i) {
             isOnlyCentroid[i] = true;
             fieldID[i] = i;
@@ -295,7 +291,6 @@ public class KMeans {
                 }
             }
         }
-<<<<<<< HEAD
         
         // assign points naively to centroids in field with more than one cluster
         for (int i = 0; i < clusters; ++i) {
@@ -323,9 +318,6 @@ public class KMeans {
 
         // TODO: calculate all other points naively to any centroid
 	}
-=======
-    }
->>>>>>> 1447d24b6258761aadb47ab8290612dc5d6b1995
 
     /**
 	 * distance between to datapoints
