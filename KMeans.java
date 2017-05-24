@@ -1,4 +1,10 @@
 import java.util.*;
+import java.lang.*;
+import org.apache.commons.cli.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.IllegalArgumentException;
 
 import java.lang.IllegalArgumentException;
 import 
@@ -23,14 +29,20 @@ public class KMeans {
 
 	public static void main(String[] args) {
 
-		HashMap<String, Object> config = readArgs(args);
+		KMeans m = new KMeans();
+		CommandLine config = m.readArgs(args);
 
-		Double[][] data = readFile(config.get("path"));
+		Double[][] data = m.readFile(config.getOptionValue("testdata"));
 
 	}
 
-	private HashMap<String, Object> readArgs(String[] args) {
-		return null;
+	private CommandLine readArgs(String[] args) {
+		Options options = new Options();
+
+		options.addOption("testdata", true, "Path to the data to readin");
+		CommandLineParser parser = new DefaultParser();
+		CommandLine cmd = parser.parse(options, args);
+		return cmd;
 	}
 
 	private Double[][] readFile(String path) {
@@ -63,7 +75,7 @@ public class KMeans {
  
 		final Double[][] valuesArray = new Double[lines.size()][];
 		int cnt = 0;
-		for (final String line : lines) valuesArray[cnt++] = line.split(",");
+		for (final String line : lines) valuesArray[cnt++] = Double.parseDouble(line.split(","));
  
 		return valuesArray;
 	}
@@ -76,6 +88,7 @@ public class KMeans {
      *    to obtain bucket borders
 	 */
 	private List<Integer>[][] hash(Double[][] points) {
+		return null;
 	}
 	
 	/**
@@ -84,7 +97,7 @@ public class KMeans {
 	 */
 	private Integer getBucket (Double point[], Double func[]) {
 	    if (point.length != func.length) {
-	        throw IllegalArgumentException("vector dimensions have to match!");
+	        throw new IllegalArgumentException("vector dimensions have to match!");
         }
         
 	    Double sum;
