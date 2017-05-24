@@ -83,9 +83,7 @@ public class KMeans {
             String line;
 
             while ((line = buff.readLine()) != null) {
-                System.out.println(line); // kontrolle was eingelesen
-
-                lines.add(line);
+		lines.add(line);
             }
 		} catch (IOException|NullPointerException e) {
 			System.err.println("Konnte das File nicht finden\n" + e);
