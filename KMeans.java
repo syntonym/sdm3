@@ -1,4 +1,5 @@
 import java.util.*;
+import java.lang.*;
 
 public class KMeans {
 
@@ -18,9 +19,11 @@ public class KMeans {
 
 	public static void main(String[] args) {
 
-		HashMap<String, Object> config = readArgs(args);
+		KMeans m = new KMeans();
+		HashMap<String, Object> config = m.readArgs(args);
 
-		Double[][] data = readFile(config.get("path"));
+
+		Double[][] data = m.readFile((String) config.get("path"));
 
 	}
 
@@ -68,6 +71,7 @@ public class KMeans {
 	 * zweites Argument Bucket
 	 */
 	private List<Integer>[][] hash(Double[][] points) {
+		return null;
 	}
 	
 	/**
