@@ -133,7 +133,7 @@ public class KMeans {
 	    
 	    Double centroids[][] = new Double[clusters][dimension];
 	    
-	    Random rand;
+	    Random rand = new Random();
 	    int randomNum;
 	    
 	    for (int i = 0; i < clusters; ++i) {
