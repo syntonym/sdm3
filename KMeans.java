@@ -1,5 +1,6 @@
 import java.util.*;
 import java.lang.*;
+import org.apache.commmons.cli.*;
 
 public class KMeans {
 
@@ -20,15 +21,19 @@ public class KMeans {
 	public static void main(String[] args) {
 
 		KMeans m = new KMeans();
-		HashMap<String, Object> config = m.readArgs(args);
+		CommandLine config = m.readArgs(args);
 
-
-		Double[][] data = m.readFile((String) config.get("path"));
+		Double[][] data = m.readFile(config.getOptionValue("testdata"));
 
 	}
 
-	private HashMap<String, Object> readArgs(String[] args) {
-		return null;
+	private CommandLine readArgs(String[] args) {
+		Options options = new Options();
+
+		options.addOption("testdata", true, "Path to the data to readin");
+		CommandLineParser parser = new DefaultParser();
+		CommandLine cmd = parser.parse(options, args);
+		return cmd;
 	}
 
 	private Double[][] readFile(String path) {
