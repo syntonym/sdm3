@@ -42,7 +42,14 @@ public class KMeans {
 
 		options.addOption("testdata", true, "Path to the data to readin");
 		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, args);
+		CommandLine cmd = null;
+		try {
+			cmd = parser.parse(options, args);
+		} catch (ParseException ex) {
+			System.out.println("Parsing went wront, please give correct arguments");
+			System.exit(1);
+		}
+
 		return cmd;
 	}
 
