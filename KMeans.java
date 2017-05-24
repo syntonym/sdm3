@@ -28,7 +28,38 @@ public class KMeans {
 	}
 
 	private Double[][] readFile(String path) {
-		return null;
+
+		// Einlesen des Files und spliten
+		FileReader myFile = null;
+		BufferedReader buff = null;
+		final List<String> lines = new ArrayList<String>();
+ 
+		try {
+			myFile = new FileReader(path);
+			buff = new BufferedReader(myFile);
+			String line;
+
+			while ((line = buff.readLine()) != null) {
+				System.out.println(line); // kontrolle was eingelesen
+
+		        lines.add(line);
+		    }
+		} catch (IOException e) {
+			System.err.println("Error :" + e);
+		} finally {
+			try {
+				buff.close();
+				myFile.close();
+			} catch (IOException e) {
+				System.err.println("Error :" + e);
+			}
+		}
+ 
+		final Double[][] valuesArray = new Double[lines.size()][];
+		int cnt = 0;
+		for (final String line : lines) valuesArray[cnt++] = line.split(",");
+ 
+		return valuesArray;
 	}
 
 	/**
