@@ -34,20 +34,24 @@ public class KMeans {
 
         KMeans m = new KMeans();
         CommandLine config = m.readArgs(args);
+        Double[][] data;
 
         try {
-            Double[][] data = m.readFile(config.getOptionValue("testdata"));
+            data = m.readFile(config.getOptionValue("testdata"));
         } catch (NullPointerException e) {
             System.err.println("Konnte das File nicht finden\n" + e);
             System.exit(1);
+            return;
         }
 
         double startTime;
         double endTime;
         double timeKMeans;
 
+        ArrayList<HashMap<Integer, Set<Integer>>> buckets = m.hash(data);
+
         startTime = System.currentTimeMillis();
-        //place your function here
+        m.algorithm(data, buckets);
         endTime = System.currentTimeMillis();
 
         timeKMeans = endTime - startTime;
@@ -200,7 +204,7 @@ public class KMeans {
         return new Double(sum / (bucketWidths[func])).intValue();
     }
 
-    private void algorithm (Double[][] points, Set<Integer>[][] buckets) {
+    private void algorithm (Double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets) {
 
         /*
          * centroid initialisation and hashing
@@ -238,6 +242,7 @@ public class KMeans {
          */
 
         // on each index we save the centroid index for the corresponding point
+        // TODO this might be slow? -> profile!
         Integer pointsClusterMap [] = new Integer[points.length];
 
         // isOnlyCentroid is true on index i if centroid i is the only centroid in its field.
@@ -256,7 +261,7 @@ public class KMeans {
                 for (int k = 0; k < amountHashFuncs; ++k) {
                     if (centroidBuckets[i][k] == centroidBuckets[j][k]) {
                         sim += 1;
-                        // TODO: does this work!?
+
                         if (sim >= p) {
                             fieldID[j] = fieldID[i];
                             isOnlyCentroid[i] = false;
@@ -272,10 +277,9 @@ public class KMeans {
             if (isOnlyCentroid[i]) {
                 // we get amountHashFuncs (default 10) sets of Integers, which
                 // represent the index of all points in the corresponding bucket
-                // TODO: change native arrays to ArrayLists
                 ArrayList<Set<Integer>> allBucketPoints = new ArrayList<Set<Integer>>(amountHashFuncs);
                 for (int j = 0; j < amountHashFuncs; ++j) {
-                    allBucketPoints.add(j, buckets[j][centroidBuckets[i][j]]);
+                    allBucketPoints.add(j, buckets.get(j).get(centroidBuckets[i][j]));
                 }
 
                 // we calculate the intersection of all sets to obtain
@@ -292,15 +296,15 @@ public class KMeans {
             }
         }
 
+
         // assign points naively to centroids in field with more than one cluster
         for (int i = 0; i < clusters; ++i) {
             if (!isOnlyCentroid[i]) {
                 // we get amountHashFuncs (default 10) sets of Integers, which
                 // represent the index of all points in the corresponding bucket
-                // TODO: change native arrays to ArrayLists
                 ArrayList<Set<Integer>> allBucketPoints = new ArrayList<Set<Integer>>(amountHashFuncs);
                 for (int j = 0; j < amountHashFuncs; ++j) {
-                    allBucketPoints.add(j, buckets[j][centroidBuckets[i][j]]);
+                    allBucketPoints.add(j, buckets.get(j).get(centroidBuckets[i][j]));
                 }
 
                 // we calculate the intersection of all sets to obtain
