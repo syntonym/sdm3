@@ -254,6 +254,9 @@ public class KMeans {
             fieldID[i] = i;
         }
 
+        // remember already processed points 
+        Set<Integer> processed = new HashSet<>(points.length/100);
+
         // check which centroids are alone in its field
         for (int i = 0; i < clusters; ++i) {
             for (int j = i + 1; j < clusters; ++j) {
@@ -293,6 +296,7 @@ public class KMeans {
                 for (Integer bi : bucketPoints) {
                     pointsClusterMap[bi] = i;
                 }
+                processed.addAll(bucketPoints);
             }
         }
 
@@ -307,20 +311,32 @@ public class KMeans {
                     allBucketPoints.add(j, buckets.get(j).get(centroidBuckets[i][j]));
                 }
 
-                // we calculate the intersection of all sets to obtain
-                // all points which are in the exact same field as the centroids are
-                Set<Integer> bucketPoints = allBucketPoints.get(0);
-                for (int j = 1; j < amountHashFuncs; ++j) {
-                    bucketPoints.retainAll (allBucketPoints.get(j));
-                }
-
                 // TODO:
                 // we calculate the minimum distance to
                 // all centroids in the same field
             }
         }
 
-        // TODO: calculate all other points naively to any centroid
+        // Calculate centroid for any point that is not already processed
+        
+        for (int point_index=0; point_index < points.length; point_index++ ) {
+            // skip already processed points
+            if (processed.contains(point_index)) {
+                continue;
+            }
+            double min_distance = Double.POSITIVE_INFINITY;
+            int min_centroid_index = -1;
+
+            for (int centroid_index=0; centroid_index < clusters; centroid_index++) {
+                double d = distance(points[point_index], centroids[centroid_index]);
+                if (d < min_distance) {
+                    min_distance = d;
+                    min_centroid_index = centroid_index;
+                }
+            }
+
+            pointsClusterMap[point_index] = min_centroid_index;
+        }
     }
 
     /**
