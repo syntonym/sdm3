@@ -35,6 +35,7 @@ public class KMeans {
 
     public static void main(String[] args) {
 
+        Integer tries = 6;
         KMeans m = new KMeans();
         CommandLine config = m.readArgs(args);
         Integer p = null;
@@ -61,50 +62,39 @@ public class KMeans {
         m.pointsClusterMap = new Integer[data.length];
         
         double startTime;
+        double hashTime;
         double endTime;
         double timeKMeans;
 
-        ArrayList<HashMap<Integer, Set<Integer>>> buckets = m.hash(data);
+        for (int j=0; j<tries; j++) {
 
-        startTime = System.currentTimeMillis();
-        m.pointsClusterMap = m.algorithm(data, buckets, p);
-        endTime = System.currentTimeMillis();
+            startTime = System.currentTimeMillis();
+            ArrayList<HashMap<Integer, Set<Integer>>> buckets = m.hash(data);
+            hashTime = System.currentTimeMillis();
+            m.pointsClusterMap = m.algorithm(data, buckets, p);
+            endTime = System.currentTimeMillis();
 
-        timeKMeans = endTime - startTime;
-        
-        ArrayList<Integer> processedPointsClusterMap = new ArrayList<Integer>();
-        ArrayList<Integer> processedCorrectPointsClusterMap = new ArrayList<Integer>();
-        
-        // clusterIDMap [correctPointsClusterID] = pointsClusterID
-        ArrayList<Integer> clusterIDMap = new ArrayList<Integer>(15); // 15 is the amount of clusters, shouldn't be hardcoded TODO
-        int errors = 0;
-/*        
-        for (int i = 0; i < m.pointsClusterMap.length; ++i) {
-            processedPointsClusterMap.add(m.pointsClusterMap[i]);
-            processedCorrectPointsClusterMap.add(m.correctPointsClusterMap[i]);
-        
-            if (clusterIDMap.get(m.correctPointsClusterMap[i]) == null) {
-                clusterIDMap.set(m.correctPointsClusterMap[i], m.pointsClusterMap[i]);
-            } else {
-                if (clusterIDMap.get(m.correctPointsClusterMap[i]) != m.pointsClusterMap[i]) {
-                    ++errors;
-                }
+            timeKMeans = endTime - startTime;
+            
+            ArrayList<Integer> processedPointsClusterMap = new ArrayList<Integer>();
+            ArrayList<Integer> processedCorrectPointsClusterMap = new ArrayList<Integer>();
+
+            for (int i = 0; i < m.pointsClusterMap.length; ++i) {
+                processedPointsClusterMap.add(m.pointsClusterMap[i]);
+            }
+                    
+            for (int i = 0; i < m.correctPointsClusterMap.length; ++i) {
+                processedCorrectPointsClusterMap.add(m.correctPointsClusterMap[i]);
+            }
+
+            double nmiValue = NMI (processedPointsClusterMap, processedCorrectPointsClusterMap);
+
+            if ( j > 0 || tries == 1) {
+                System.out.print("{\"p\": " + p + ",\n");
+                System.out.print("\"NMI\": " + nmiValue + ",\n");
+                System.out.print("\"time\": " + timeKMeans + "}\n");
             }
         }
-*/
-        for (int i = 0; i < m.pointsClusterMap.length; ++i) {
-            processedPointsClusterMap.add(m.pointsClusterMap[i]);
-        }
-                
-        for (int i = 0; i < m.correctPointsClusterMap.length; ++i) {
-            processedCorrectPointsClusterMap.add(m.correctPointsClusterMap[i]);
-        }
-
-        double nmiValue = NMI (processedPointsClusterMap, processedCorrectPointsClusterMap);
-        
-        System.out.print("NMI: " + nmiValue + "\n");
-
-        System.out.print("time: " + timeKMeans + "\n");
 
     }
 
@@ -311,7 +301,6 @@ public class KMeans {
         int run = 0;
 
         while (dirty) {
-            System.out.println(run);
             run++;
             dirty = false;
 
@@ -577,7 +566,6 @@ public class KMeans {
 		double IUV = HU-HUstrichV;
 		double reto = IUV/(Math.max(HU, HV));
 
-		System.out.println("NMI: "+reto);
 		return reto;
 	}
 }
