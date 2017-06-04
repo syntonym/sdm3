@@ -1,5 +1,11 @@
 compile:
 	javac -classpath lib/commons-cli-1.4.jar KMeans.java
 
-run:
+compile_debug:
+	javac -g -classpath lib/commons-cli-1.4.jar KMeans.java
+
+run: compile
 	java -classpath .:lib/commons-cli-1.4.jar KMeans -testdata LSH-nmi-corrected.csv
+
+debug: compile_debug
+	jdb -classpath .:lib/commons-cli-1.4.jar KMeans -testdata LSH-nmi-corrected.csv
