@@ -202,7 +202,7 @@ public class KMeans {
                     set = new HashSet<>();
                     buckets.get(funci).put(bucketIndex, set);
                 }
-                set.add(bucketIndex);
+                set.add(i);
             }
 
         }
@@ -328,13 +328,21 @@ public class KMeans {
                     // we calculate the intersection of all sets to obtain
                     // all points which are in the exact same field as the centroid
                     Set<Integer> bucketPoints = allBucketPoints.get(0);
+                    if (bucketPoints == null) {
+                        bucketPoints = new HashSet<>();
+                    }
                     for (int j = 1; j < amountHashFuncs; ++j) {
-                        bucketPoints.retainAll (allBucketPoints.get(j));
+                        Set<Integer> tmpPoints = allBucketPoints.get(j);
+                        if (tmpPoints == null) {
+                            bucketPoints = new HashSet<>();
+                            break;
+                        }
+                        bucketPoints.retainAll (tmpPoints);
                     }
 
                     // finally we assign the clusterIds to the points
                     for (Integer bi : bucketPoints) {
-                        if (pointsClusterMap[bi] != i) {
+                        if (pointsClusterMap[bi] == null || pointsClusterMap[bi] != i) {
                             pointsClusterMap[bi] = i;
                             dirty = true;
                         }
