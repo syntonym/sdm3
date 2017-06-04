@@ -61,11 +61,17 @@ public class KMeans {
 
         timeKMeans = endTime - startTime;
         
+        ArrayList<Integer> processedPointsClusterMap = new ArrayList<Integer>();
+        ArrayList<Integer> processedCorrectPointsClusterMap = new ArrayList<Integer>();
+        
         // clusterIDMap [correctPointsClusterID] = pointsClusterID
         ArrayList<Integer> clusterIDMap = new ArrayList<Integer>(15); // 15 is the amount of clusters, shouldn't be hardcoded TODO
         int errors = 0;
         
         for (int i = 0; i < m.pointsClusterMap.length; ++i) {
+            processedPointsClusterMap.add(m.pointsClusterMap[i]);
+            processedCorrectPointsClusterMap.add(m.correctPointsClusterMap[i]);
+        
             if (clusterIDMap.get(m.correctPointsClusterMap[i]) == null) {
                 clusterIDMap.set(m.correctPointsClusterMap[i], m.pointsClusterMap[i]);
             } else {
@@ -74,6 +80,10 @@ public class KMeans {
                 }
             }
         }
+                
+        double nmiValue = NMI (processedPointsClusterMap, processedCorrectPointsClusterMap);
+        
+        System.out.print("NMI: " + nmiValue + "\n");
 
         System.out.print("time: " + timeKMeans + "\n");
 
@@ -147,7 +157,8 @@ public class KMeans {
         }
 
         correctPointsClusterMap = new Integer[lines.size()];
-        Double[][] valuesDouble = new Double[lines.size()][valuesArray[0].length];
+        // the -1 is necessary since the last column in the source csv file is the corresponding centroid
+        Double[][] valuesDouble = new Double[lines.size()][valuesArray[0].length-1]; 
 
         for (int i=0; i<lines.size(); ++i) {
             for (int j=0; j<valuesArray[0].length; ++j) {
@@ -484,5 +495,68 @@ public class KMeans {
         return Math.sqrt(distance);
     }
 
+    /* copied and pasted, original function by martin perdacher */
+    public static double NMI(ArrayList<Integer> one, ArrayList<Integer> two){
+		if(one.size()!=two.size()){
+			throw new IllegalArgumentException("Sizes don't match!");
+		}
+		int maxone = Collections.max(one);
+		int maxtwo = Collections.max(two);
 
+		double[][] count = new double[maxone+1][maxtwo+1];
+		//System.out.println(count[1][2]);
+		for(int i=0;i<one.size();i++){
+			count[one.get(i)][two.get(i)]++;
+		}
+		//i<maxone=R
+		//j<maxtwo=C
+		double[] bj = new double[maxtwo+1];
+		double[] ai = new double[maxone+1];
+
+		for(int m=0;m<(maxtwo+1);m++){
+			for(int l=0;l<(maxone+1);l++){
+				bj[m]=bj[m]+count[l][m];
+			}
+		}
+		for(int m=0;m<(maxone+1);m++){
+			for(int l=0;l<(maxtwo+1);l++){
+				ai[m]=ai[m]+count[m][l];
+			}
+		}
+
+		double N=0;
+		for(int i=0;i<ai.length;i++){
+			N=N+ai[i];
+		}
+		double HU = 0;
+		for(int l=0;l<ai.length;l++){
+			double c=0;
+			c=(ai[l]/N);
+			if(c>0){
+				HU=HU-c*Math.log(c);
+			}
+		}
+
+		double HV = 0;
+		for(int l=0;l<bj.length;l++){
+			double c=0;
+			c=(bj[l]/N);
+			if(c>0){
+				HV=HV-c*Math.log(c);
+			}
+		}
+		double HUstrichV=0;
+		for(int i=0;i<(maxone+1);i++){
+			for(int j=0;j<(maxtwo+1);j++){
+				if(count[i][j]>0){
+					HUstrichV=HUstrichV-count[i][j]/N*Math.log(((count[i][j])/(bj[j])));
+				}
+			}
+		}
+		double IUV = HU-HUstrichV;
+		double reto = IUV/(Math.max(HU, HV));
+
+		System.out.println("NMI: "+reto);
+		return reto;
+	}
 }
