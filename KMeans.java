@@ -9,9 +9,9 @@ import java.lang.NullPointerException;
 
 public class KMeans {
 
-    private Double[] bucketWidths = {10., 10., 10., 10., 10., 10., 10., 10., 10., 10.};
+    private double[] bucketWidths = {10., 10., 10., 10., 10., 10., 10., 10., 10., 10.};
     private int amountHashFuncs = 10;
-    private Double hashFuncs[][] =
+    private double hashFuncs[][] =
     {
         {1., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
         {0., 1., 0., 0., 0., 0., 0., 0., 0., 0.},
@@ -28,7 +28,7 @@ public class KMeans {
     private int amountBuckets;
 
     // save the bucket borders for each function, ignoring the first border (0)
-    private Double buckets [][] = new Double [amountHashFuncs][amountBuckets];
+    private double buckets [][] = new double [amountHashFuncs][amountBuckets];
     
     public Integer pointsClusterMap[];
     public Integer correctPointsClusterMap[];
@@ -49,7 +49,7 @@ public class KMeans {
             }
         }
 
-        Double[][] data;
+        double[][] data;
 
         try {
             data = m.readFile(config.getOptionValue("testdata"));
@@ -129,10 +129,10 @@ public class KMeans {
      * readFile
      *
      * this method reads in the csv-file, parse it
-     * and returns the corresponding Double[][] values
+     * and returns the corresponding double[][] values
      * @param path String - path to file
      **/
-    private Double[][] readFile(String path) {
+    private double[][] readFile(String path) {
 
         // Einlesen des Files und spliten
         FileReader myFile = null;
@@ -168,7 +168,7 @@ public class KMeans {
 
         correctPointsClusterMap = new Integer[lines.size()];
         // the -1 is necessary since the last column in the source csv file is the corresponding centroid
-        Double[][] valuesDouble = new Double[lines.size()][valuesArray[0].length-1]; 
+        double[][] valuesDouble = new double[lines.size()][valuesArray[0].length-1]; 
 
         for (int i=0; i<lines.size(); ++i) {
             for (int j=0; j<valuesArray[0].length; ++j) {
@@ -190,18 +190,18 @@ public class KMeans {
      *    to obtain bucket borders, which should be saved
      *    in the field buckets
      */
-    private ArrayList<HashMap<Integer, Set<Integer>>> hash(Double[][] points) {
+    private ArrayList<HashMap<Integer, Set<Integer>>> hash(double[][] points) {
         ArrayList<HashMap<Integer, Set<Integer>>> buckets = new ArrayList<HashMap<Integer, Set<Integer>>>();
 
         for (int funci=0; funci<hashFuncs.length; funci++) {
             buckets.add(funci, new HashMap<>());
         }
 
-        Double[] min = new Double[points[0].length];
+        double[] min = new double[points[0].length];
         for (int i=0; i<min.length; i++) {
             min[i] = Double.POSITIVE_INFINITY;
         }
-        Double[] max = new Double[points[0].length];
+        double[] max = new double[points[0].length];
         for (int i=0; i<max.length; i++) {
             max[i] = Double.NEGATIVE_INFINITY;
         }
@@ -235,12 +235,12 @@ public class KMeans {
      *  calculates the hash value of a point and a hash function as
      *  a vector-vector-product
      */
-    private Integer getBucket (Double point[], int func) {
+    private Integer getBucket (double point[], int func) {
         if (point.length != hashFuncs[func].length) {
             throw new IllegalArgumentException("vector dimensions have to match!");
         }
 
-        Double sum = 0.0;
+        double sum = 0.0;
         for (int i = 0; i < point.length; ++i) {
             sum += (point[i] * hashFuncs[func][i]);
         }
@@ -257,7 +257,7 @@ public class KMeans {
     
     
 
-    private Integer[] algorithm (Double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets, Integer p) {
+    private Integer[] algorithm (double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets, Integer p) {
 
         /*
          * centroid initialisation and hashing
@@ -267,7 +267,7 @@ public class KMeans {
         int dimension = 10;
         int max = points.length;
 
-        Double centroids[][] = new Double[clusters][dimension];
+        double centroids[][] = new double[clusters][dimension];
 
         Random rand = new Random();
         int randomNum;
@@ -494,12 +494,12 @@ public class KMeans {
      * @param a    Double[]
      * @param b    Double[]
      **/
-    private Double distance(Double[] a, Double[] b) {
+    private double distance(double[] a, double[] b) {
 
         double distance = 0;
 
         for (int i=0; i<a.length; ++i) {
-            distance += Math.pow(a[i]-b[i],2);
+            distance += Math.pow(a[i]-b[i],2.0);
         }
 
         return Math.sqrt(distance);
