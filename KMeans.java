@@ -29,6 +29,7 @@ public class KMeans {
 
     // save the bucket borders for each function, ignoring the first border (0)
     private Double buckets [][] = new Double [amountHashFuncs][amountBuckets];
+    private Integer pointsClusterMap[];
 
     public static void main(String[] args) {
 
@@ -43,6 +44,8 @@ public class KMeans {
             System.exit(1);
             return;
         }
+        
+        pointsClusterMap[] = new Integer[data.length];
 
         double startTime;
         double endTime;
@@ -51,10 +54,14 @@ public class KMeans {
         ArrayList<HashMap<Integer, Set<Integer>>> buckets = m.hash(data);
 
         startTime = System.currentTimeMillis();
-        m.algorithm(data, buckets);
+        pointsClusterMap = m.algorithm(data, buckets);
         endTime = System.currentTimeMillis();
 
         timeKMeans = endTime - startTime;
+        
+        for (int i = 0; i < pointsClusterMap.length; ++i) {
+        
+        }
 
         System.out.print("time: " + timeKMeans + "\n");
 
@@ -203,6 +210,11 @@ public class KMeans {
 
         return new Double(sum / (bucketWidths[func])).intValue();
     }
+    
+    
+    
+    
+    
 
     private void algorithm (Double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets) {
 
