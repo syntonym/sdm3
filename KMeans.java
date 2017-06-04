@@ -228,7 +228,7 @@ public class KMeans {
             // take a point at a random index
             // position from points and use it as centroid
             randomNum = rand.nextInt(max + 1);
-            centroids[i] = points[randomNum];
+            centroids[i] = points[randomNum].clone();
         }
 
         Integer centroidBuckets[][] = new Integer[clusters][amountHashFuncs];
@@ -423,7 +423,9 @@ public class KMeans {
 
             for (int i=0; i<centroids.length; i++) {
                 for (int j=0; j<dimension; j++) {
-                    centroids[i][j] /= weight[i];
+                    if (weight[i] != 0) {
+                        centroids[i][j] /= weight[i];
+                    }
                 }
             }
 
