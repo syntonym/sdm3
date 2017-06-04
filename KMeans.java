@@ -311,9 +311,34 @@ public class KMeans {
                     allBucketPoints.add(j, buckets.get(j).get(centroidBuckets[i][j]));
                 }
 
-                // TODO:
-                // we calculate the minimum distance to
-                // all centroids in the same field
+                // we calculate the intersection of all sets to obtain
+                // all points which are in the exact same field as the centroids are
+                Set<Integer> bucketPoints = allBucketPoints.get(0);
+                for (int j = 1; j < amountHashFuncs; ++j) {
+                    bucketPoints.retainAll (allBucketPoints.get(j));
+                }
+
+                // calculate the minimum to clusters which are in the same bucket
+
+
+                for (Integer point_index : bucketPoints) {
+                    double min_distance = Double.POSITIVE_INFINITY;
+                    int min_centroid_index = -1;
+
+                    for (int centroid_index = 0; centroid_index < clusters; centroid_index++) {
+                        if (fieldID[centroid_index] != fieldID[i])
+                            continue;
+
+                        double d = distance(points[point_index], centroids[centroid_index]);
+                        if (d < min_distance) {
+                            min_distance = d;
+                            min_centroid_index = centroid_index;
+                        }
+                    }
+
+                    pointsClusterMap[point_index] = min_centroid_index;
+                }
+
             }
         }
 
