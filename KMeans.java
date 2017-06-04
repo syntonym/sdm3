@@ -201,7 +201,11 @@ public class KMeans {
             sum += (point[i] * hashFuncs[func][i]);
         }
 
-        return new Double(sum / (bucketWidths[func])).intValue();
+        Integer r = new Double(sum / (bucketWidths[func])).intValue();
+        if (r == null) {
+            throw new NullPointerException();
+        }
+        return r;
     }
 
     private void algorithm (Double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets) {
@@ -246,8 +250,11 @@ public class KMeans {
         Integer pointsClusterMap [] = new Integer[points.length];
 
         boolean dirty = true;
+        int run = 0;
 
         while (dirty) {
+            System.out.println(run);
+            run++;
             dirty = false;
 
             // isOnlyCentroid is true on index i if centroid i is the only centroid in its field.
@@ -372,9 +379,50 @@ public class KMeans {
                     }
                 }
 
-                if (pointsClusterMap[point_index] != min_centroid_index) {
+                if (pointsClusterMap[point_index] == null || min_centroid_index != pointsClusterMap[point_index] ) {
                     pointsClusterMap[point_index] = min_centroid_index;
                     dirty = true;
+                }
+            }
+
+            // reset centroids
+
+            for (int i=0; i<centroids.length; i++) {
+                for (int j=0; j<dimension; j++) {
+                    centroids[i][j] = 0.0;
+                }
+            }
+
+            // recalculate centroids
+
+            
+            // Double centroids[][] = new Double[clusters][dimension];
+            Integer weight [] = new Integer[points.length];
+
+            for (int i=0; i<weight.length; i++) {
+                weight[i] = 0;
+            }
+
+
+            for (int point_index=0; point_index < points.length; point_index++) {
+                Integer centroid_index = pointsClusterMap[point_index];
+                weight[centroid_index]++;
+
+                for (int i=0; i<dimension; i++) {
+                    centroids[centroid_index][i] += points[point_index][i];
+                }
+            }
+
+            for (int i=0; i<centroids.length; i++) {
+                for (int j=0; j<dimension; j++) {
+                    centroids[i][j] /= weight[i];
+                }
+            }
+
+            // recalculate the hash value for every centroid for every hash function
+            for (int i = 0; i < clusters; ++i) {
+                for (int j = 0; j < hashFuncs.length; ++j) {
+                    centroidBuckets[i][j] = getBucket (centroids[i], j);
                 }
             }
         }
