@@ -29,8 +29,9 @@ public class KMeans {
 
     // save the bucket borders for each function, ignoring the first border (0)
     private Double buckets [][] = new Double [amountHashFuncs][amountBuckets];
-    private Integer pointsClusterMap[];
-    private Integer correctPointsClusterMap[];
+    
+    public Integer pointsClusterMap[];
+    public Integer correctPointsClusterMap[];
 
     public static void main(String[] args) {
 
@@ -46,7 +47,7 @@ public class KMeans {
             return;
         }
 
-        pointsClusterMap[] = new Integer[data.length];
+        m.pointsClusterMap = new Integer[data.length];
         
         double startTime;
         double endTime;
@@ -55,20 +56,20 @@ public class KMeans {
         ArrayList<HashMap<Integer, Set<Integer>>> buckets = m.hash(data);
 
         startTime = System.currentTimeMillis();
-        pointsClusterMap = m.algorithm(data, buckets);
+        m.pointsClusterMap = m.algorithm(data, buckets);
         endTime = System.currentTimeMillis();
 
         timeKMeans = endTime - startTime;
         
         // clusterIDMap [correctPointsClusterID] = pointsClusterID
-        ArrayList<Integer> clusterIDMap = new ArrayList<Integer>(clusters);
-        int errors;
+        ArrayList<Integer> clusterIDMap = new ArrayList<Integer>(15); // 15 is the amount of clusters, shouldn't be hardcoded TODO
+        int errors = 0;
         
-        for (int i = 0; i < pointsClusterMap.length; ++i) {
-            if (clusterIDMap.get(correctPointsClusterMap.get(i)) == null) {
-                clusterIDMap.set(correctPointsClusterMap.get(i), pointsClusterMap.get(i));
+        for (int i = 0; i < m.pointsClusterMap.length; ++i) {
+            if (clusterIDMap.get(m.correctPointsClusterMap[i]) == null) {
+                clusterIDMap.set(m.correctPointsClusterMap[i], m.pointsClusterMap[i]);
             } else {
-                if (clusterIDMap.get(correctPointsClusterMap.get(i)) != pointsClusterMap.get(i)) {
+                if (clusterIDMap.get(m.correctPointsClusterMap[i]) != m.pointsClusterMap[i]) {
                     ++errors;
                 }
             }
@@ -145,7 +146,7 @@ public class KMeans {
             valuesArray[cnt++] = line.split(",");
         }
 
-        correctPointsCluterMap[] = new Integer[lines.size()];
+        correctPointsClusterMap = new Integer[lines.size()];
         Double[][] valuesDouble = new Double[lines.size()][valuesArray[0].length];
 
         for (int i=0; i<lines.size(); ++i) {
@@ -153,7 +154,7 @@ public class KMeans {
                 if (j < 10) 
                     valuesDouble[i][j] = Double.parseDouble(valuesArray[i][j]);
                 else 
-                    correctPointsClusterMap[i] = valuesArray[i][j];
+                    correctPointsClusterMap[i] = Integer.parseInt(valuesArray[i][j]);
             }
         }
 
@@ -235,7 +236,7 @@ public class KMeans {
     
     
 
-    private void algorithm (Double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets) {
+    private Integer[] algorithm (Double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets) {
 
         /*
          * centroid initialisation and hashing
@@ -453,6 +454,8 @@ public class KMeans {
                 }
             }
         }
+        
+        return pointsClusterMap;
     }
 
     /**
