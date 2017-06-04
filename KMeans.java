@@ -30,6 +30,7 @@ public class KMeans {
     // save the bucket borders for each function, ignoring the first border (0)
     private Double buckets [][] = new Double [amountHashFuncs][amountBuckets];
     private Integer pointsClusterMap[];
+    private Integer correctPointsClusterMap[];
 
     public static void main(String[] args) {
 
@@ -44,9 +45,9 @@ public class KMeans {
             System.exit(1);
             return;
         }
-        
-        pointsClusterMap[] = new Integer[data.length];
 
+        pointsClusterMap[] = new Integer[data.length];
+        
         double startTime;
         double endTime;
         double timeKMeans;
@@ -59,8 +60,18 @@ public class KMeans {
 
         timeKMeans = endTime - startTime;
         
-        for (int i = 0; i < pointsClusterMap.length; ++i) {
+        // clusterIDMap [correctPointsClusterID] = pointsClusterID
+        ArrayList<Integer> clusterIDMap = new ArrayList<Integer>(clusters);
+        int errors;
         
+        for (int i = 0; i < pointsClusterMap.length; ++i) {
+            if (clusterIDMap.get(correctPointsClusterMap.get(i)) == null) {
+                clusterIDMap.set(correctPointsClusterMap.get(i), pointsClusterMap.get(i));
+            } else {
+                if (clusterIDMap.get(correctPointsClusterMap.get(i)) != pointsClusterMap.get(i)) {
+                    ++errors;
+                }
+            }
         }
 
         System.out.print("time: " + timeKMeans + "\n");
@@ -134,11 +145,15 @@ public class KMeans {
             valuesArray[cnt++] = line.split(",");
         }
 
+        correctPointsCluterMap[] = new Integer[lines.size()];
         Double[][] valuesDouble = new Double[lines.size()][valuesArray[0].length];
 
         for (int i=0; i<lines.size(); ++i) {
             for (int j=0; j<valuesArray[0].length; ++j) {
-                valuesDouble[i][j] = Double.parseDouble(valuesArray[i][j]);
+                if (j < 10) 
+                    valuesDouble[i][j] = Double.parseDouble(valuesArray[i][j]);
+                else 
+                    correctPointsClusterMap[i] = valuesArray[i][j];
             }
         }
 
