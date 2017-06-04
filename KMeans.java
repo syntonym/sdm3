@@ -67,7 +67,7 @@ public class KMeans {
         // clusterIDMap [correctPointsClusterID] = pointsClusterID
         ArrayList<Integer> clusterIDMap = new ArrayList<Integer>(15); // 15 is the amount of clusters, shouldn't be hardcoded TODO
         int errors = 0;
-        
+/*        
         for (int i = 0; i < m.pointsClusterMap.length; ++i) {
             processedPointsClusterMap.add(m.pointsClusterMap[i]);
             processedCorrectPointsClusterMap.add(m.correctPointsClusterMap[i]);
@@ -80,7 +80,15 @@ public class KMeans {
                 }
             }
         }
+*/
+        for (int i = 0; i < m.pointsClusterMap.length; ++i) {
+            processedPointsClusterMap.add(m.pointsClusterMap[i]);
+        }
                 
+        for (int i = 0; i < m.correctPointsClusterMap.length; ++i) {
+            processedCorrectPointsClusterMap.add(m.correctPointsClusterMap[i]);
+        }
+
         double nmiValue = NMI (processedPointsClusterMap, processedCorrectPointsClusterMap);
         
         System.out.print("NMI: " + nmiValue + "\n");
