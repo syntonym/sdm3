@@ -37,6 +37,17 @@ public class KMeans {
 
         KMeans m = new KMeans();
         CommandLine config = m.readArgs(args);
+        Integer p = null;
+        try {
+        p = (Integer.valueOf(config.getOptionValue("p")));
+        } catch (Exception e) {
+            System.out.println("Error commandline parsing: p");
+        } finally {
+            if (p == null) {
+                p = 10;
+            }
+        }
+
         Double[][] data;
 
         try {
@@ -56,7 +67,7 @@ public class KMeans {
         ArrayList<HashMap<Integer, Set<Integer>>> buckets = m.hash(data);
 
         startTime = System.currentTimeMillis();
-        m.pointsClusterMap = m.algorithm(data, buckets);
+        m.pointsClusterMap = m.algorithm(data, buckets, p);
         endTime = System.currentTimeMillis();
 
         timeKMeans = endTime - startTime;
@@ -102,6 +113,7 @@ public class KMeans {
 
         options.addOption("testdata", true, "Path to the data to readin");
         options.addOption("help", false, "Shows this help");
+        options.addOption("p", true, "How many buckets are needed for shortcut");
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
         try {
@@ -255,13 +267,12 @@ public class KMeans {
     
     
 
-    private Integer[] algorithm (Double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets) {
+    private Integer[] algorithm (Double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets, Integer p) {
 
         /*
          * centroid initialisation and hashing
          */
 
-        int p = amountHashFuncs; // which corresponds 100% match
         int clusters = 15;
         int dimension = 10;
         int max = points.length;
@@ -406,7 +417,7 @@ public class KMeans {
                             }
                         }
 
-                        if (pointsClusterMap[point_index] != min_centroid_index) {
+                        if (pointsClusterMap[point_index] == null || pointsClusterMap[point_index] != min_centroid_index) {
                             pointsClusterMap[point_index] = min_centroid_index;
                             dirty = true;
                         }
