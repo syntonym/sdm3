@@ -37,15 +37,28 @@ public class KMeans {
 
         Integer tries = 6;
         KMeans m = new KMeans();
+
         CommandLine config = m.readArgs(args);
         Integer p = null;
+        Boolean r = false;
         try {
         p = (Integer.valueOf(config.getOptionValue("p")));
+        r = (Boolean.valueOf(config.getOptionValue("r")));
         } catch (Exception e) {
             System.out.println("Error commandline parsing: p");
         } finally {
             if (p == null) {
                 p = 10;
+            }
+        }
+
+        Random randNumber = new Random();
+
+        if (r) {
+            for (int i = 0; i<m.amountHashFuncs; i++) {
+                for (int j = 0; j<m.amountHashFuncs; j++) {
+                    m.hashFuncs[i][j] = randNumber.nextDouble();
+                }
             }
         }
 
@@ -104,6 +117,7 @@ public class KMeans {
         options.addOption("testdata", true, "Path to the data to readin");
         options.addOption("help", false, "Shows this help");
         options.addOption("p", true, "How many buckets are needed for shortcut");
+        options.addOption("r", true, "if r is set true a random hash matrix is calculated, otherwise the identity matrix is used.");
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
         try {
@@ -491,8 +505,8 @@ public class KMeans {
      * distance between to datapoints
      *
      * this method returns the euclidian distance between two datapoints
-     * @param a    Double[]
-     * @param b    Double[]
+     * @param a    double[]
+     * @param b    double[]
      **/
     private double distance(double[] a, double[] b) {
 
