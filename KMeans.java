@@ -245,122 +245,138 @@ public class KMeans {
         // TODO this might be slow? -> profile!
         Integer pointsClusterMap [] = new Integer[points.length];
 
-        // isOnlyCentroid is true on index i if centroid i is the only centroid in its field.
-        Boolean isOnlyCentroid [] = new Boolean[clusters];
-        Integer fieldID [] = new Integer[clusters];
+        boolean dirty = true;
 
-        for (int i = 0; i < clusters; ++i) {
-            isOnlyCentroid[i] = true;
-            fieldID[i] = i;
-        }
+        while (dirty) {
+            dirty = false;
 
-        // remember already processed points 
-        Set<Integer> processed = new HashSet<>(points.length/100);
+            // isOnlyCentroid is true on index i if centroid i is the only centroid in its field.
+            Boolean isOnlyCentroid [] = new Boolean[clusters];
+            Integer fieldID [] = new Integer[clusters];
 
-        // check which centroids are alone in its field
-        for (int i = 0; i < clusters; ++i) {
-            for (int j = i + 1; j < clusters; ++j) {
-                int sim = 0;
-                for (int k = 0; k < amountHashFuncs; ++k) {
-                    if (centroidBuckets[i][k] == centroidBuckets[j][k]) {
-                        sim += 1;
+            for (int i = 0; i < clusters; ++i) {
+                isOnlyCentroid[i] = true;
+                fieldID[i] = i;
+            }
 
-                        if (sim >= p) {
-                            fieldID[j] = fieldID[i];
-                            isOnlyCentroid[i] = false;
-                            isOnlyCentroid[j] = false;
+            // remember already processed points 
+            Set<Integer> processed = new HashSet<>(points.length/100);
+
+            // check which centroids are alone in its field
+            for (int i = 0; i < clusters; ++i) {
+                for (int j = i + 1; j < clusters; ++j) {
+                    int sim = 0;
+                    for (int k = 0; k < amountHashFuncs; ++k) {
+                        if (centroidBuckets[i][k] == centroidBuckets[j][k]) {
+                            sim += 1;
+
+                            if (sim >= p) {
+                                fieldID[j] = fieldID[i];
+                                isOnlyCentroid[i] = false;
+                                isOnlyCentroid[j] = false;
+                            }
                         }
                     }
                 }
             }
-        }
 
-        // assign all corresponding points to all lonely centroids
-        for (int i = 0; i <  clusters; ++i) {
-            if (isOnlyCentroid[i]) {
-                // we get amountHashFuncs (default 10) sets of Integers, which
-                // represent the index of all points in the corresponding bucket
-                ArrayList<Set<Integer>> allBucketPoints = new ArrayList<Set<Integer>>(amountHashFuncs);
-                for (int j = 0; j < amountHashFuncs; ++j) {
-                    allBucketPoints.add(j, buckets.get(j).get(centroidBuckets[i][j]));
-                }
-
-                // we calculate the intersection of all sets to obtain
-                // all points which are in the exact same field as the centroid
-                Set<Integer> bucketPoints = allBucketPoints.get(0);
-                for (int j = 1; j < amountHashFuncs; ++j) {
-                    bucketPoints.retainAll (allBucketPoints.get(j));
-                }
-
-                // finally we assign the clusterIds to the points
-                for (Integer bi : bucketPoints) {
-                    pointsClusterMap[bi] = i;
-                }
-                processed.addAll(bucketPoints);
-            }
-        }
-
-
-        // assign points naively to centroids in field with more than one cluster
-        for (int i = 0; i < clusters; ++i) {
-            if (!isOnlyCentroid[i]) {
-                // we get amountHashFuncs (default 10) sets of Integers, which
-                // represent the index of all points in the corresponding bucket
-                ArrayList<Set<Integer>> allBucketPoints = new ArrayList<Set<Integer>>(amountHashFuncs);
-                for (int j = 0; j < amountHashFuncs; ++j) {
-                    allBucketPoints.add(j, buckets.get(j).get(centroidBuckets[i][j]));
-                }
-
-                // we calculate the intersection of all sets to obtain
-                // all points which are in the exact same field as the centroids are
-                Set<Integer> bucketPoints = allBucketPoints.get(0);
-                for (int j = 1; j < amountHashFuncs; ++j) {
-                    bucketPoints.retainAll (allBucketPoints.get(j));
-                }
-
-                // calculate the minimum to clusters which are in the same bucket
-
-
-                for (Integer point_index : bucketPoints) {
-                    double min_distance = Double.POSITIVE_INFINITY;
-                    int min_centroid_index = -1;
-
-                    for (int centroid_index = 0; centroid_index < clusters; centroid_index++) {
-                        if (fieldID[centroid_index] != fieldID[i])
-                            continue;
-
-                        double d = distance(points[point_index], centroids[centroid_index]);
-                        if (d < min_distance) {
-                            min_distance = d;
-                            min_centroid_index = centroid_index;
-                        }
+            // assign all corresponding points to all lonely centroids
+            for (int i = 0; i <  clusters; ++i) {
+                if (isOnlyCentroid[i]) {
+                    // we get amountHashFuncs (default 10) sets of Integers, which
+                    // represent the index of all points in the corresponding bucket
+                    ArrayList<Set<Integer>> allBucketPoints = new ArrayList<Set<Integer>>(amountHashFuncs);
+                    for (int j = 0; j < amountHashFuncs; ++j) {
+                        allBucketPoints.add(j, buckets.get(j).get(centroidBuckets[i][j]));
                     }
 
+                    // we calculate the intersection of all sets to obtain
+                    // all points which are in the exact same field as the centroid
+                    Set<Integer> bucketPoints = allBucketPoints.get(0);
+                    for (int j = 1; j < amountHashFuncs; ++j) {
+                        bucketPoints.retainAll (allBucketPoints.get(j));
+                    }
+
+                    // finally we assign the clusterIds to the points
+                    for (Integer bi : bucketPoints) {
+                        if (pointsClusterMap[bi] != i) {
+                            pointsClusterMap[bi] = i;
+                            dirty = true;
+                        }
+                    }
+                    processed.addAll(bucketPoints);
+                }
+            }
+
+
+            // assign points naively to centroids in field with more than one cluster
+            for (int i = 0; i < clusters; ++i) {
+                if (!isOnlyCentroid[i]) {
+                    // we get amountHashFuncs (default 10) sets of Integers, which
+                    // represent the index of all points in the corresponding bucket
+                    ArrayList<Set<Integer>> allBucketPoints = new ArrayList<Set<Integer>>(amountHashFuncs);
+                    for (int j = 0; j < amountHashFuncs; ++j) {
+                        allBucketPoints.add(j, buckets.get(j).get(centroidBuckets[i][j]));
+                    }
+
+                    // we calculate the intersection of all sets to obtain
+                    // all points which are in the exact same field as the centroids are
+                    Set<Integer> bucketPoints = allBucketPoints.get(0);
+                    for (int j = 1; j < amountHashFuncs; ++j) {
+                        bucketPoints.retainAll (allBucketPoints.get(j));
+                    }
+
+                    // calculate the minimum to clusters which are in the same bucket
+
+
+                    for (Integer point_index : bucketPoints) {
+                        double min_distance = Double.POSITIVE_INFINITY;
+                        int min_centroid_index = -1;
+
+                        for (int centroid_index = 0; centroid_index < clusters; centroid_index++) {
+                            if (fieldID[centroid_index] != fieldID[i])
+                                continue;
+
+                            double d = distance(points[point_index], centroids[centroid_index]);
+                            if (d < min_distance) {
+                                min_distance = d;
+                                min_centroid_index = centroid_index;
+                            }
+                        }
+
+                        if (pointsClusterMap[point_index] != min_centroid_index) {
+                            pointsClusterMap[point_index] = min_centroid_index;
+                            dirty = true;
+                        }
+                        processed.add(point_index);
+                    }
+
+                }
+            }
+
+            // Calculate centroid for any point that is not already processed
+            
+            for (int point_index=0; point_index < points.length; point_index++ ) {
+                // skip already processed points
+                if (processed.contains(point_index)) {
+                    continue;
+                }
+                double min_distance = Double.POSITIVE_INFINITY;
+                int min_centroid_index = -1;
+
+                for (int centroid_index=0; centroid_index < clusters; centroid_index++) {
+                    double d = distance(points[point_index], centroids[centroid_index]);
+                    if (d < min_distance) {
+                        min_distance = d;
+                        min_centroid_index = centroid_index;
+                    }
+                }
+
+                if (pointsClusterMap[point_index] != min_centroid_index) {
                     pointsClusterMap[point_index] = min_centroid_index;
-                }
-
-            }
-        }
-
-        // Calculate centroid for any point that is not already processed
-        
-        for (int point_index=0; point_index < points.length; point_index++ ) {
-            // skip already processed points
-            if (processed.contains(point_index)) {
-                continue;
-            }
-            double min_distance = Double.POSITIVE_INFINITY;
-            int min_centroid_index = -1;
-
-            for (int centroid_index=0; centroid_index < clusters; centroid_index++) {
-                double d = distance(points[point_index], centroids[centroid_index]);
-                if (d < min_distance) {
-                    min_distance = d;
-                    min_centroid_index = centroid_index;
+                    dirty = true;
                 }
             }
-
-            pointsClusterMap[point_index] = min_centroid_index;
         }
     }
 
