@@ -10,6 +10,7 @@ import org.apache.commons.cli.*;
 
 public class KMeans {
 
+    private boolean randomizedHashes = false;
     int run = 0;
     double w = -1.0;
     private double[] bucketWidths = new double[10];
@@ -54,43 +55,46 @@ public class KMeans {
 
         CommandLine config = readArgs(args);
         Integer p = null;
-        Boolean r = false;
-		Boolean a = false;
+        randomizedHashes = false;
+		Boolean bucketWidthsAuto = false;
 
 		//command line inputs
         try {
 		    p = (Integer.valueOf(config.getOptionValue("p")));
         } catch (Exception e) {
-            System.out.println("Error commandline parsing: p");
+            System.out.println("Error commandline parsing.");
         } finally {
             if (p == null) {
                 p = 10;
+                bucketWidthsAuto = false;
+                bucketWidth = 33;
+                randomizedHashes  = true;
             }
         }
 
 		try {
-		    w = (Double.valueOf(config.getOptionValue("w")));
+		    bucketWidth = (Double.valueOf(config.getOptionValue("w")));
         } catch (Exception e) {
-            System.out.println("Error commandline parsing: w");
+            System.out.println("Error commandline parsing: bucketWidth");
         } finally {
-			if (w == -1.0) w = 30; //default
+			if (bucketWidth == -1.0) bucketWidth = 30; //default
         }
 
 		try {
-		    r = (Boolean.valueOf(config.getOptionValue("r")));
+		    randomizedHashes = (Boolean.valueOf(config.getOptionValue("r")));
         } catch (Exception e) {
             System.out.println("Error commandline parsing: r");
         }
 
 		try {
-			a = (Boolean.valueOf(config.getOptionValue("a")));
+			bucketWidthsAuto = (Boolean.valueOf(config.getOptionValue("widths_auto")));
         } catch (Exception e) {
-            System.out.println("Error commandline parsing: a");
+            System.out.println("Error commandline parsing: widths_auto");
         }
 
 
         // calculate random hash functions
-        if (r) {
+        if (randomizedHashes) {
 			Random randNumber = new Random();
             for (int i = 0; i<amountHashFuncs; i++) {
                 for (int j = 0; j<amountHashFuncs; j++) {
@@ -111,12 +115,12 @@ public class KMeans {
         }
 
 		//calculate bucket widths automatically
-		if (a) {
+		if (bucketWidthsAuto) {
 			w = -1.0;
 			double[] sd = standardDeviation(data);
 			for (int i = 0; i<10; i++) bucketWidths[i] = sd[i];
 		} else {
-        	for (int i = 0; i<amountHashFuncs; i++) bucketWidths[i]=w;
+        	for (int i = 0; i<amountHashFuncs; i++) bucketWidths[i]=bucketWidth;
 		}
 
         pointsClusterMap = new Integer[data.length];
@@ -164,9 +168,11 @@ public class KMeans {
 
             if ( j > 0 || tries == 1) {
                 System.out.print("{\"p\": " + p + ",\n");
-                System.out.print("\"bucket width\": " + w + ",\n");
+                System.out.print("\"bucket width\": " + bucketWidth + ",\n");
                 System.out.print("\"runs\": " + run + ",\n");
                 System.out.print("\"NMI\": " + nmiValue + ",\n");
+                System.out.print("\"bucketWidthsAuto\": " + bucketWidthsAuto + ",\n");
+                System.out.print("\"randomizedHashes\": " + randomizedHashes + ",\n");
                 System.out.print("\"time_initialisation\": " + (endInitialisationTime - startInitialisationTime) + ",\n");
                 System.out.print("\"time_hashing\": " + timeHashing + ",\n");
                 System.out.print("\"LSH_count\": " + cnt_LSH + ",\n");
@@ -188,8 +194,8 @@ public class KMeans {
         options.addOption("help", false, "Shows this help");
         options.addOption("p", true, "How many buckets are needed for shortcut");
         options.addOption("r", true, "true -> random hash matrix, otherwise identity matrix");
-        options.addOption("w", true, "bucket width");
-		options.addOption("a", true, "true -> bucket widths calculated automatically");
+        options.addOption("width", true, "bucket width");
+		options.addOption("width_auto", true, "true -> bucket widths calculated automatically");
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
         try {
