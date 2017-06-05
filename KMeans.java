@@ -12,7 +12,7 @@ public class KMeans {
 
     private boolean randomizedHashes = false;
     int run = 0;
-    double w = -1.0;
+    double bucketWidth = -1.0;
     private double[] bucketWidths = new double[10];
     private int amountHashFuncs = 10;
     private double startInitialisationTime = 0.0;
@@ -116,7 +116,7 @@ public class KMeans {
 
 		//calculate bucket widths automatically
 		if (bucketWidthsAuto) {
-			w = -1.0;
+			bucketWidth = -1.0;
 			double[] sd = standardDeviation(data);
 			for (int i = 0; i<10; i++) bucketWidths[i] = sd[i];
 		} else {
