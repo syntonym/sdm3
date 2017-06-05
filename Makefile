@@ -5,7 +5,7 @@ compile_debug:
 	javac -g -classpath lib/commons-cli-1.4.jar KMeans.java
 
 run: compile
-	java -classpath .:lib/commons-cli-1.4.jar KMeans -testdata LSH-nmi-adapted.csv -p 8 -r true -w 20
+	java -classpath .:lib/commons-cli-1.4.jar KMeans -testdata LSH-nmi-adapted.csv -p 6 -r true -w 33
 
 debug: compile_debug
-	jdb -classpath .:lib/commons-cli-1.4.jar KMeans -testdata LSH-nmi-adapted.csv -p 8 -r true
+	jdb -classpath .:lib/commons-cli-1.4.jar KMeans -testdata LSH-nmi-adapted.csv -p 6 -r true
