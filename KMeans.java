@@ -103,7 +103,7 @@ public class KMeans {
             startTime = System.currentTimeMillis();
             ArrayList<HashMap<Integer, Set<Integer>>> buckets = hash(data);
             hashTime = System.currentTimeMillis();
-            pointsClusterMap = algorithm(data, buckets, p, cnt_dist);
+            pointsClusterMap = algorithm(data, buckets, p);
             endTime = System.currentTimeMillis();
 
             timeHashing = hashTime - startTime;
@@ -298,7 +298,7 @@ public class KMeans {
     
     
 
-    private Integer[] algorithm (double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets, Integer p, Integer cnt_dist) {
+    private Integer[] algorithm (double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets, Integer p) {
 
         /*
          * centroid initialisation and hashing
