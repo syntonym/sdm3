@@ -1,16 +1,20 @@
-import java.util.*;
-import java.lang.*;
-import org.apache.commons.cli.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.IllegalArgumentException;
 import java.lang.NullPointerException;
 
+import java.lang.*;
+import java.util.*;
+import org.apache.commons.cli.*;
+
 public class KMeans {
 
+    int run = 0;
     private double[] bucketWidths = {10., 10., 10., 10., 10., 10., 10., 10., 10., 10.};
     private int amountHashFuncs = 10;
+    private double startInitialisationTime = 0.0;
+    private double endInitialisationTime =0.0;
     private double hashFuncs[][] =
     {
         {1., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
@@ -34,11 +38,17 @@ public class KMeans {
     public Integer correctPointsClusterMap[];
 
     public static void main(String[] args) {
+        KMeans m = new KMeans();
+        m.unstatic_main(args);
+    }
+
+    public void unstatic_main(String[] args) {
 
         Integer tries = 6;
-        KMeans m = new KMeans();
 
-        CommandLine config = m.readArgs(args);
+        // command line parsing
+
+        CommandLine config = readArgs(args);
         Integer p = null;
         Boolean r = false;
         try {
@@ -52,65 +62,84 @@ public class KMeans {
             }
         }
 
+        // calculate random hash functions
         Random randNumber = new Random();
+        System.out.println(r);
 
         if (r) {
-            for (int i = 0; i<m.amountHashFuncs; i++) {
-                for (int j = 0; j<m.amountHashFuncs; j++) {
-                    m.hashFuncs[i][j] = randNumber.nextDouble();
+            for (int i = 0; i<amountHashFuncs; i++) {
+                for (int j = 0; j<amountHashFuncs; j++) {
+                    hashFuncs[i][j] = randNumber.nextDouble();
                 }
             }
         }
 
         double[][] data;
 
+        // read maindata
         try {
-            data = m.readFile(config.getOptionValue("testdata"));
+            data = readFile(config.getOptionValue("testdata"));
         } catch (NullPointerException e) {
             System.err.println("Konnte das File nicht finden\n" + e);
             System.exit(1);
             return;
         }
 
-        m.pointsClusterMap = new Integer[data.length];
+        pointsClusterMap = new Integer[data.length];
         
         double startTime;
         double hashTime;
         double endTime;
         double timeKMeans;
+        double timeHashing;
 
+        // run multiple times for better measurements 
         for (int j=0; j<tries; j++) {
 
+            // Record time for initial hashing and algorithm
+
             startTime = System.currentTimeMillis();
-            ArrayList<HashMap<Integer, Set<Integer>>> buckets = m.hash(data);
+            ArrayList<HashMap<Integer, Set<Integer>>> buckets = hash(data);
             hashTime = System.currentTimeMillis();
-            m.pointsClusterMap = m.algorithm(data, buckets, p);
+            pointsClusterMap = algorithm(data, buckets, p);
             endTime = System.currentTimeMillis();
 
+            timeHashing = hashTime - startTime;
             timeKMeans = endTime - startTime;
+
+            // Calculate NMI 
             
             ArrayList<Integer> processedPointsClusterMap = new ArrayList<Integer>();
             ArrayList<Integer> processedCorrectPointsClusterMap = new ArrayList<Integer>();
 
-            for (int i = 0; i < m.pointsClusterMap.length; ++i) {
-                processedPointsClusterMap.add(m.pointsClusterMap[i]);
+            for (int i = 0; i < pointsClusterMap.length; ++i) {
+                processedPointsClusterMap.add(pointsClusterMap[i]);
             }
                     
-            for (int i = 0; i < m.correctPointsClusterMap.length; ++i) {
-                processedCorrectPointsClusterMap.add(m.correctPointsClusterMap[i]);
+            for (int i = 0; i < correctPointsClusterMap.length; ++i) {
+                processedCorrectPointsClusterMap.add(correctPointsClusterMap[i]);
             }
 
             double nmiValue = NMI (processedPointsClusterMap, processedCorrectPointsClusterMap);
 
+            // Output only after the first run to warm up JVM
+            // Output in JSON for further analysis in python
+
             if ( j > 0 || tries == 1) {
                 System.out.print("{\"p\": " + p + ",\n");
+                System.out.print("\"runs\": " + run + ",\n");
                 System.out.print("\"NMI\": " + nmiValue + ",\n");
+                System.out.print("\"time_initialisation\": " + (endInitialisationTime - startInitialisationTime) + ",\n");
+                System.out.print("\"time_hashing\": " + timeHashing + ",\n");
                 System.out.print("\"time\": " + timeKMeans + "}\n");
             }
         }
 
     }
 
+    /**
+     * Command line parsing
+     */
     private CommandLine readArgs(String[] args) {
         Options options = new Options();
 
@@ -123,7 +152,6 @@ public class KMeans {
         try {
             cmd = parser.parse(options, args);
         } catch (ParseException ex) {
-            System.out.println(ex);
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("KMeans", options);
             System.exit(1);
@@ -199,10 +227,6 @@ public class KMeans {
     /**
      * Erstes Argument Hashfunktion
      * zweites Argument Bucket
-     * TODO:
-     *  - calculate the max and the min hash values
-     *    to obtain bucket borders, which should be saved
-     *    in the field buckets
      */
     private ArrayList<HashMap<Integer, Set<Integer>>> hash(double[][] points) {
         ArrayList<HashMap<Integer, Set<Integer>>> buckets = new ArrayList<HashMap<Integer, Set<Integer>>>();
@@ -284,15 +308,52 @@ public class KMeans {
 
         double centroids[][] = new double[clusters][dimension];
 
-        Random rand = new Random();
-        int randomNum;
+        // Initialisation of Centroids
 
-        for (int i = 0; i < clusters; ++i) {
-            // take a point at a random index
-            // position from points and use it as centroid
-            randomNum = rand.nextInt(max + 1);
-            centroids[i] = points[randomNum].clone();
+        startInitialisationTime = System.currentTimeMillis();
+        Random rand = new Random();
+        int randomNum = rand.nextInt(max +1);
+        centroids[0] = points[randomNum].clone();
+
+        for (int cluster_index=1; cluster_index<clusters; cluster_index++) {
+
+            double total_min = Double.POSITIVE_INFINITY;
+            double total_max = Double.NEGATIVE_INFINITY;
+
+            double distance_total = 0.0;
+            double distance [] = new double[points.length];
+
+            for (int i=0; i<points.length; i++) {
+                double min = Double.POSITIVE_INFINITY;
+                for (int j=0; j<cluster_index; j++) {
+                    double d = distance2(centroids[j], points[i]);
+                    if (d < min) {
+                        min = d;
+                    }
+                }
+
+                distance[i] = min;
+                distance_total += min;
+
+                if (min < total_min) {
+                    total_min = min;
+                }
+                if (min > total_max) {
+                    total_max = min;
+                }
+            }
+
+            for (int i=0; i<points.length; i++) {
+                double randomNumber = distance_total * rand.nextDouble();
+                if (randomNumber < distance[i]) {
+                    centroids[cluster_index] = points[i].clone();
+                    break;
+                } else {
+                    distance_total -= distance[i];
+                }
+            }
         }
+        endInitialisationTime = System.currentTimeMillis();
 
         Integer centroidBuckets[][] = new Integer[clusters][amountHashFuncs];
 
@@ -306,14 +367,15 @@ public class KMeans {
 
         /*
          * let's get serious now...
+         * Main Algorithm
          */
 
         // on each index we save the centroid index for the corresponding point
-        // TODO this might be slow? -> profile!
         Integer pointsClusterMap [] = new Integer[points.length];
 
+        // dirty is true if any point changed clusters
         boolean dirty = true;
-        int run = 0;
+        run = 0;
 
         while (dirty) {
             run++;
@@ -404,8 +466,6 @@ public class KMeans {
                     }
 
                     // calculate the minimum to clusters which are in the same bucket
-
-
                     for (Integer point_index : bucketPoints) {
                         double min_distance = Double.POSITIVE_INFINITY;
                         int min_centroid_index = -1;
@@ -465,17 +525,16 @@ public class KMeans {
                 }
             }
 
-            // recalculate centroids
-
+            // --- Recalculate Centroids ---
             
-            // Double centroids[][] = new Double[clusters][dimension];
+            // count how many points are assigned to a centroid
             Integer weight [] = new Integer[points.length];
 
             for (int i=0; i<weight.length; i++) {
                 weight[i] = 0;
             }
 
-
+            // sum all points assigned to the centroid
             for (int point_index=0; point_index < points.length; point_index++) {
                 Integer centroid_index = pointsClusterMap[point_index];
                 weight[centroid_index]++;
@@ -484,6 +543,8 @@ public class KMeans {
                     centroids[centroid_index][i] += points[point_index][i];
                 }
             }
+
+            // Divide by weight to calculate the average
 
             for (int i=0; i<centroids.length; i++) {
                 for (int j=0; j<dimension; j++) {
@@ -522,6 +583,20 @@ public class KMeans {
         }
 
         return Math.sqrt(distance);
+    }
+
+    /**
+     * distance squared between to datapoints
+     **/
+    private double distance2(double[] a, double[] b) {
+
+        double distance = 0;
+
+        for (int i=0; i<a.length; ++i) {
+            distance += Math.pow(a[i]-b[i],2.0);
+        }
+
+        return distance;
     }
 
     /* copied and pasted, original function by martin perdacher */
