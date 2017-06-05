@@ -11,8 +11,8 @@ import org.apache.commons.cli.*;
 public class KMeans {
 
     int run = 0;
-    double w = 30.;
-    private double[] bucketWidths = {w, w, w, w, w, w, w, w, w, w};
+    double w = -1.0;
+    private double[] bucketWidths = new double[10];
     private int amountHashFuncs = 10;
     private double startInitialisationTime = 0.0;
     private double endInitialisationTime = 0.0;
@@ -56,11 +56,10 @@ public class KMeans {
         Integer p = null;
         Boolean r = false;
 		Boolean a = false;
+
+		//command line inputs
         try {
-        p = (Integer.valueOf(config.getOptionValue("p")));
-        r = (Boolean.valueOf(config.getOptionValue("r")));
-        w = (Double.valueOf(config.getOptionValue("w")));
-		a = (Boolean.valueOf(config.getOptionValue("a")));
+		    p = (Integer.valueOf(config.getOptionValue("p")));
         } catch (Exception e) {
             System.out.println("Error commandline parsing: p");
         } finally {
@@ -68,6 +67,27 @@ public class KMeans {
                 p = 10;
             }
         }
+
+		try {
+		    w = (Double.valueOf(config.getOptionValue("w")));
+        } catch (Exception e) {
+            System.out.println("Error commandline parsing: w");
+        } finally {
+			if (w == -1.0) w = 30; //default
+        }
+
+		try {
+		    r = (Boolean.valueOf(config.getOptionValue("r")));
+        } catch (Exception e) {
+            System.out.println("Error commandline parsing: r");
+        }
+
+		try {
+			a = (Boolean.valueOf(config.getOptionValue("a")));
+        } catch (Exception e) {
+            System.out.println("Error commandline parsing: a");
+        }
+
 
         // calculate random hash functions
         if (r) {
@@ -92,14 +112,11 @@ public class KMeans {
 
 		//calculate bucket widths automatically
 		if (a) {
-
+			w = -1.0;
 			double[] sd = standardDeviation(data);
 			for (int i = 0; i<10; i++) bucketWidths[i] = sd[i];
-
 		} else {
-
         	for (int i = 0; i<amountHashFuncs; i++) bucketWidths[i]=w;
-
 		}
 
         pointsClusterMap = new Integer[data.length];
@@ -430,6 +447,7 @@ public class KMeans {
                                 fieldID[j] = fieldID[i];
                                 isOnlyCentroid[i] = false;
                                 isOnlyCentroid[j] = false;
+								break;
                             }
                         }
                     }
