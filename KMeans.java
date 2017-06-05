@@ -75,7 +75,7 @@ public class KMeans {
         if (r) {
             for (int i = 0; i<amountHashFuncs; i++) {
                 for (int j = 0; j<amountHashFuncs; j++) {
-                    hashFuncs[i][j] = randNumber.nextDouble();
+                    hashFuncs[i][j] = randNumber.nextGaussian();
                 }
             }
         }
