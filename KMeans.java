@@ -15,7 +15,7 @@ public class KMeans {
     private double[] bucketWidths = {w, w, w, w, w, w, w, w, w, w};
     private int amountHashFuncs = 10;
     private double startInitialisationTime = 0.0;
-    private double endInitialisationTime =0.0;
+    private double endInitialisationTime = 0.0;
     private double hashFuncs[][] =
     {
         {1., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
@@ -55,10 +55,12 @@ public class KMeans {
         CommandLine config = readArgs(args);
         Integer p = null;
         Boolean r = false;
+		Boolean a = false;
         try {
         p = (Integer.valueOf(config.getOptionValue("p")));
         r = (Boolean.valueOf(config.getOptionValue("r")));
         w = (Double.valueOf(config.getOptionValue("w")));
+		a = (Boolean.valueOf(config.getOptionValue("a")));
         } catch (Exception e) {
             System.out.println("Error commandline parsing: p");
         } finally {
@@ -67,12 +69,9 @@ public class KMeans {
             }
         }
 
-        for (int i = 0; i<amountHashFuncs; i++) bucketWidths[i]=w;
-
         // calculate random hash functions
-        Random randNumber = new Random();
-
         if (r) {
+			Random randNumber = new Random();
             for (int i = 0; i<amountHashFuncs; i++) {
                 for (int j = 0; j<amountHashFuncs; j++) {
                     hashFuncs[i][j] = randNumber.nextDouble();
@@ -90,6 +89,18 @@ public class KMeans {
             System.exit(1);
             return;
         }
+
+		//calculate bucket widths automatically
+		if (a) {
+
+			double[] sd = standardDeviation(data);
+			for (int i = 0; i<10; i++) bucketWidths[i] = sd[i];
+
+		} else {
+
+        	for (int i = 0; i<amountHashFuncs; i++) bucketWidths[i]=w;
+
+		}
 
         pointsClusterMap = new Integer[data.length];
         
@@ -159,8 +170,9 @@ public class KMeans {
         options.addOption("testdata", true, "Path to the data to readin");
         options.addOption("help", false, "Shows this help");
         options.addOption("p", true, "How many buckets are needed for shortcut");
-        options.addOption("r", true, "if r is set true a random hash matrix is calculated, otherwise the identity matrix is used.");
+        options.addOption("r", true, "true -> random hash matrix, otherwise identity matrix");
         options.addOption("w", true, "bucket width");
+		options.addOption("a", true, "true -> bucket widths calculated automatically");
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
         try {
@@ -614,6 +626,37 @@ public class KMeans {
 
         return distance;
     }
+
+	private double[] standardDeviation(double[][] a) {
+
+		double mean;
+		double variance;
+		double[] sd = new double[a[0].length];
+
+		for (int dim = 0; dim < a[0].length; dim++) {
+
+			mean = 0;
+			variance = 0;
+
+			for (int i = 0; i<a.length; i++) {
+				mean += a[i][dim];
+			}
+
+			mean /= a.length;
+
+			for (int j = 0; j<a.length; j++) {
+				variance += Math.pow(a[j][dim]-mean,2.0);
+			}
+
+			variance /= a.length;
+
+			sd[dim] = Math.sqrt(variance);
+
+		}
+
+		return sd;
+
+	}
 
     /* copied and pasted, original function by martin perdacher */
     public static double NMI(ArrayList<Integer> one, ArrayList<Integer> two){
