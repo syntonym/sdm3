@@ -11,7 +11,8 @@ import org.apache.commons.cli.*;
 public class KMeans {
 
     int run = 0;
-    private double[] bucketWidths = {10., 10., 10., 10., 10., 10., 10., 10., 10., 10.};
+    double w = 30.;
+    private double[] bucketWidths = {w, w, w, w, w, w, w, w, w, w};
     private int amountHashFuncs = 10;
     private double startInitialisationTime = 0.0;
     private double endInitialisationTime =0.0;
@@ -57,6 +58,7 @@ public class KMeans {
         try {
         p = (Integer.valueOf(config.getOptionValue("p")));
         r = (Boolean.valueOf(config.getOptionValue("r")));
+        w = (Double.valueOf(config.getOptionValue("w")));
         } catch (Exception e) {
             System.out.println("Error commandline parsing: p");
         } finally {
@@ -64,6 +66,8 @@ public class KMeans {
                 p = 10;
             }
         }
+
+        for (int i = 0; i<amountHashFuncs; i++) bucketWidths[i]=w;
 
         // calculate random hash functions
         Random randNumber = new Random();
@@ -133,6 +137,7 @@ public class KMeans {
 
             if ( j > 0 || tries == 1) {
                 System.out.print("{\"p\": " + p + ",\n");
+                System.out.print("\"bucket width\": " + w + ",\n");
                 System.out.print("\"runs\": " + run + ",\n");
                 System.out.print("\"NMI\": " + nmiValue + ",\n");
                 System.out.print("\"time_initialisation\": " + (endInitialisationTime - startInitialisationTime) + ",\n");
@@ -156,6 +161,7 @@ public class KMeans {
         options.addOption("help", false, "Shows this help");
         options.addOption("p", true, "How many buckets are needed for shortcut");
         options.addOption("r", true, "if r is set true a random hash matrix is calculated, otherwise the identity matrix is used.");
+        options.addOption("w", true, "bucket width");
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
         try {
