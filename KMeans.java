@@ -31,6 +31,8 @@ public class KMeans {
 
     private int amountBuckets;
     private Integer cnt_dist;
+    private Integer cnt_LSH;
+    private Integer cnt_centroidNaive;
 
     // save the bucket borders for each function, ignoring the first border (0)
     private double buckets [][] = new double [amountHashFuncs][amountBuckets];
@@ -98,6 +100,8 @@ public class KMeans {
         for (int j=0; j<tries; j++) {
 
             cnt_dist = 0;
+            cnt_LSH = 0;
+            cnt_centroidNaive = 0;
             // Record time for initial hashing and algorithm
 
             startTime = System.currentTimeMillis();
@@ -133,6 +137,8 @@ public class KMeans {
                 System.out.print("\"NMI\": " + nmiValue + ",\n");
                 System.out.print("\"time_initialisation\": " + (endInitialisationTime - startInitialisationTime) + ",\n");
                 System.out.print("\"time_hashing\": " + timeHashing + ",\n");
+                System.out.print("\"LSH_count\": " + cnt_LSH + ",\n");
+                System.out.print("\"centroidNaive_count\": " + cnt_centroidNaive + ",\n");
                 System.out.print("\"distance_cnt\": " + cnt_dist + ",\n");
                 System.out.print("\"time\": " + timeKMeans + "}\n");
             }
@@ -443,6 +449,7 @@ public class KMeans {
                         if (pointsClusterMap[bi] == null || pointsClusterMap[bi] != i) {
                             pointsClusterMap[bi] = i;
                             dirty = true;
+                            cnt_LSH += clusters;
                         }
                     }
                     processed.addAll(bucketPoints);
@@ -453,6 +460,10 @@ public class KMeans {
             // assign points naively to centroids in field with more than one cluster
             for (int i = 0; i < clusters; ++i) {
                 if (!isOnlyCentroid[i]) {
+                    
+                    // counter
+                    cnt_centroidNaive++;
+
                     // we get amountHashFuncs (default 10) sets of Integers, which
                     // represent the index of all points in the corresponding bucket
                     ArrayList<Set<Integer>> allBucketPoints = new ArrayList<Set<Integer>>(amountHashFuncs);
