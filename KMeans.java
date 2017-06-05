@@ -97,13 +97,13 @@ public class KMeans {
         // run multiple times for better measurements 
         for (int j=0; j<tries; j++) {
 
-            m.cnt_dist = 0;
+            cnt_dist = 0;
             // Record time for initial hashing and algorithm
 
             startTime = System.currentTimeMillis();
             ArrayList<HashMap<Integer, Set<Integer>>> buckets = hash(data);
             hashTime = System.currentTimeMillis();
-            m.pointsClusterMap = m.algorithm(data, buckets, p, m.cnt_dist);
+            pointsClusterMap = algorithm(data, buckets, p, cnt_dist);
             endTime = System.currentTimeMillis();
 
             timeHashing = hashTime - startTime;
