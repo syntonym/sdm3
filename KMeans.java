@@ -26,6 +26,7 @@ public class KMeans {
     };
 
     private int amountBuckets;
+    private Integer cnt_dist;
 
     // save the bucket borders for each function, ignoring the first border (0)
     private double buckets [][] = new double [amountHashFuncs][amountBuckets];
@@ -81,10 +82,12 @@ public class KMeans {
 
         for (int j=0; j<tries; j++) {
 
+            m.cnt_dist = 0;
+
             startTime = System.currentTimeMillis();
             ArrayList<HashMap<Integer, Set<Integer>>> buckets = m.hash(data);
             hashTime = System.currentTimeMillis();
-            m.pointsClusterMap = m.algorithm(data, buckets, p);
+            m.pointsClusterMap = m.algorithm(data, buckets, p, m.cnt_dist);
             endTime = System.currentTimeMillis();
 
             timeKMeans = endTime - startTime;
@@ -105,6 +108,7 @@ public class KMeans {
             if ( j > 0 || tries == 1) {
                 System.out.print("{\"p\": " + p + ",\n");
                 System.out.print("\"NMI\": " + nmiValue + ",\n");
+                System.out.print("\"distCount\": " + m.cnt_dist + ",\n");
                 System.out.print("\"time\": " + timeKMeans + "}\n");
             }
         }
@@ -271,7 +275,7 @@ public class KMeans {
     
     
 
-    private Integer[] algorithm (double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets, Integer p) {
+    private Integer[] algorithm (double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets, Integer p, Integer cnt_dist) {
 
         /*
          * centroid initialisation and hashing
@@ -280,7 +284,6 @@ public class KMeans {
         int clusters = 15;
         int dimension = 10;
         int max = points.length;
-	int cnt_dist = 0;
 
         double centroids[][] = new double[clusters][dimension];
 
@@ -500,9 +503,7 @@ public class KMeans {
                 }
             }
         }
-
-        System.out.println("distance count: " + cnt_dist);
-        
+ 
         return pointsClusterMap;
     }
 
