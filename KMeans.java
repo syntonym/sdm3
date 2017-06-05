@@ -280,6 +280,7 @@ public class KMeans {
         int clusters = 15;
         int dimension = 10;
         int max = points.length;
+	int cnt_dist = 0;
 
         double centroids[][] = new double[clusters][dimension];
 
@@ -414,6 +415,7 @@ public class KMeans {
                                 continue;
 
                             double d = distance(points[point_index], centroids[centroid_index]);
+				            cnt_dist++;
                             if (d < min_distance) {
                                 min_distance = d;
                                 min_centroid_index = centroid_index;
@@ -442,6 +444,7 @@ public class KMeans {
 
                 for (int centroid_index=0; centroid_index < clusters; centroid_index++) {
                     double d = distance(points[point_index], centroids[centroid_index]);
+                    cnt_dist++;
                     if (d < min_distance) {
                         min_distance = d;
                         min_centroid_index = centroid_index;
@@ -497,6 +500,8 @@ public class KMeans {
                 }
             }
         }
+
+        System.out.println("distance count: " + cnt_dist);
         
         return pointsClusterMap;
     }
