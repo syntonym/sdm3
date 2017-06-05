@@ -71,7 +71,6 @@ public class KMeans {
 
         // calculate random hash functions
         Random randNumber = new Random();
-        System.out.println(r);
 
         if (r) {
             for (int i = 0; i<amountHashFuncs; i++) {
@@ -467,9 +466,6 @@ public class KMeans {
             for (int i = 0; i < clusters; ++i) {
                 if (!isOnlyCentroid[i]) {
                     
-                    // counter
-                    cnt_centroidNaive++;
-
                     // we get amountHashFuncs (default 10) sets of Integers, which
                     // represent the index of all points in the corresponding bucket
                     ArrayList<Set<Integer>> allBucketPoints = new ArrayList<Set<Integer>>(amountHashFuncs);
@@ -490,8 +486,11 @@ public class KMeans {
                         int min_centroid_index = -1;
 
                         for (int centroid_index = 0; centroid_index < clusters; centroid_index++) {
-                            if (fieldID[centroid_index] != fieldID[i])
+                            if (fieldID[centroid_index] != fieldID[i]) {
+                                // count how many distance calculations we save
+                                cnt_centroidNaive++;
                                 continue;
+                            }
 
                             double d = distance(points[point_index], centroids[centroid_index]);
 				            cnt_dist++;
@@ -625,7 +624,6 @@ public class KMeans {
 		int maxtwo = Collections.max(two);
 
 		double[][] count = new double[maxone+1][maxtwo+1];
-		//System.out.println(count[1][2]);
 		for(int i=0;i<one.size();i++){
 			count[one.get(i)][two.get(i)]++;
 		}
