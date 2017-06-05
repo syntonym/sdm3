@@ -75,7 +75,7 @@ public class KMeans {
         if (r) {
             for (int i = 0; i<amountHashFuncs; i++) {
                 for (int j = 0; j<amountHashFuncs; j++) {
-                    hashFuncs[i][j] = randNumber.nextGaussian();
+                    hashFuncs[i][j] = randNumber.nextDouble();
                 }
             }
         }
@@ -297,7 +297,7 @@ public class KMeans {
             sum += (point[i] * hashFuncs[func][i]);
         }
 
-        Integer r = new Double(sum / (bucketWidths[func])).intValue();
+        Integer r = (int) (sum / bucketWidths[func]);
         if (r == null) {
             throw new NullPointerException();
         }
