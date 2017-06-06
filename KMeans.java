@@ -318,10 +318,14 @@ public class KMeans {
         return buckets;
     }
 
-    /**
-     *  calculates the hash value of a point and a hash function as
-     *  a vector-vector-product
-     */
+	/**
+     * getBucket
+     *
+     * this method calculates the hash value of a point and a hash function as
+     * a vector-vector-product and returns the resulting bucket number
+     * @param point   double[] - data point
+     * @param int    double[] - index of hash function
+     **/
     private Integer getBucket (double point[], int func) {
         if (point.length != hashFuncs[func].length) {
             throw new IllegalArgumentException("vector dimensions have to match!");
@@ -338,8 +342,7 @@ public class KMeans {
         }
         return r;
     }
-    
-    
+        
     
     
     
@@ -637,10 +640,14 @@ public class KMeans {
         return Math.sqrt(distance);
     }
 
-    /**
-     * distance squared between to datapoints
+	 /**
+     * squared distance between to datapoints
+     *
+     * this method returns the squared distance between two datapoints
+     * @param a    double[]
+     * @param b    double[]
      **/
-    private double distance2(double[] a, double[] b) {
+     private double distance2(double[] a, double[] b) {
 
         double distance = 0;
 
@@ -651,6 +658,17 @@ public class KMeans {
         return distance;
     }
 
+
+	/**
+     * standard deviations
+     *
+     * this method calculates the standard deviation of a double[][],
+	 * where the first field stores all datapoints and the second field
+	 * their corresponding dimensions. standard deviations are calculated for each dimension
+	 * and stored in a double[]
+	 *
+     * @param a    double[][]
+     **/
 	private double[] standardDeviation(double[][] a) {
 
 		double mean;
