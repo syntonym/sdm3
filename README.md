@@ -5,10 +5,15 @@ The files are jupyter notebooks with code  written in python.
 
 You can run the jar via
 
-`java -jar KMeans.java`
+`java -jar KMeans.jar`
 
 The code we used to gather the data uses the un-jared version.
 If you want to use our data gather scripts you must be able to compile, see the points below.
+
+If you want to change some parameters simply type in `java -jar KMeans.jar -help` to see how that works.
+example:
+
+`java -jar KMeans.jar -p 7 -r true -width_auto true`
 
 # Compiling the Java code
 
