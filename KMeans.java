@@ -73,7 +73,7 @@ public class KMeans {
         }
 
 		try {
-		    bucketWidth = (Double.valueOf(config.getOptionValue("w")));
+		    bucketWidth = (Double.valueOf(config.getOptionValue("width")));
         } catch (Exception e) {
             System.out.println("Error commandline parsing: bucketWidth");
         } finally {
