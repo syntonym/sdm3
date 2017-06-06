@@ -13,6 +13,6 @@ else:
     from jupyter_core.command import main
     import os.path
     import re
-    path_to_notebook = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Analysis.ipynb")
+    path_to_notebook = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Figure.ipynb")
     sys.argv = [re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0]), "notebook", path_to_notebook]
     sys.exit(main())

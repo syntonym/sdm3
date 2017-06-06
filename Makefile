@@ -12,3 +12,7 @@ debug: compile_debug
 
 help: compile
 	java -classpath .:lib/commons-cli-1.4.jar KMeans -help
+
+package: compile
+	jar cfM KMeans.jar KMeans.class lib/commons-cli-1.4.jar META-INF/MANIFEST.MF LSH-nmi-adapted.csv
+		

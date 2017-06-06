@@ -10,9 +10,13 @@ import org.apache.commons.cli.*;
 
 public class KMeans {
 
+    private String dataPath = "LSH-nmi-adapted.csv";
     private boolean randomizedHashes = false;
-    int run = 0;
-    double bucketWidth = -1.0;
+    private Integer tries = 6;
+    private int run = 0;
+    private Integer p = null;
+    private boolean bucketWidthAuto;
+    private double bucketWidth = -1.0;
     private double[] bucketWidths = new double[10];
     private int amountHashFuncs = 10;
     private double startInitialisationTime = 0.0;
@@ -42,56 +46,27 @@ public class KMeans {
     public Integer pointsClusterMap[];
     public Integer correctPointsClusterMap[];
 
+    /**
+     * Main access point.
+     *
+     * to work with unstatic data this only creates a new KMeans object and calls it "real" main method.
+     */
     public static void main(String[] args) {
         KMeans m = new KMeans();
         m.unstatic_main(args);
     }
 
+    /**
+     * Main Method.
+     *
+     * This is the "real" main method to access unstatic members of KMeans.
+     * There should always only be a single object of KMeans. Running unstatic_main() multiple
+     * times is not supported.
+     */
     public void unstatic_main(String[] args) {
 
-        Integer tries = 6;
-
-        // command line parsing
-
-        CommandLine config = readArgs(args);
-        Integer p = null;
-        randomizedHashes = false;
-		Boolean bucketWidthsAuto = false;
-
-		//command line inputs
-        try {
-		    p = (Integer.valueOf(config.getOptionValue("p")));
-        } catch (Exception e) {
-            System.out.println("Error commandline parsing.");
-        } finally {
-            if (p == null) {
-                p = 10;
-                bucketWidthsAuto = false;
-                bucketWidth = 33;
-                randomizedHashes  = true;
-            }
-        }
-
-		try {
-		    bucketWidth = (Double.valueOf(config.getOptionValue("width")));
-        } catch (Exception e) {
-            System.out.println("Error commandline parsing: bucketWidth");
-        } finally {
-			if (bucketWidth == -1.0) bucketWidth = 30; //default
-        }
-
-		try {
-		    randomizedHashes = (Boolean.valueOf(config.getOptionValue("r")));
-        } catch (Exception e) {
-            System.out.println("Error commandline parsing: r");
-        }
-
-		try {
-			bucketWidthsAuto = (Boolean.valueOf(config.getOptionValue("width_auto")));
-        } catch (Exception e) {
-            System.out.println("Error commandline parsing: width_auto");
-        }
-
+        // parse command line parameters and set various parameters
+        parseCommandLine(args);
 
         // calculate random hash functions
         if (randomizedHashes) {
@@ -107,15 +82,15 @@ public class KMeans {
 
         // read maindata
         try {
-            data = readFile(config.getOptionValue("testdata"));
+            data = readFile(dataPath);
         } catch (NullPointerException e) {
-            System.err.println("Konnte das File nicht finden\n" + e);
+            System.err.println("Couldn't find the testdata. Please provide the testdata via -testdata <path>.\nAborting...");
             System.exit(1);
             return;
         }
 
 		//calculate bucket widths automatically
-		if (bucketWidthsAuto) {
+		if (bucketWidthAuto) {
 			bucketWidth = -1.0;
 			double[] sd = standardDeviation(data);
 			for (int i = 0; i<10; i++) bucketWidths[i] = sd[i];
@@ -137,11 +112,13 @@ public class KMeans {
             cnt_dist = 0;
             cnt_LSH = 0;
             cnt_centroidNaive = 0;
+
             // Record time for initial hashing and algorithm
 
             startTime = System.currentTimeMillis();
             ArrayList<HashMap<Integer, Set<Integer>>> buckets = hash(data);
             hashTime = System.currentTimeMillis();
+            // Run the main algorithm
             pointsClusterMap = algorithm(data, buckets, p);
             endTime = System.currentTimeMillis();
 
@@ -171,7 +148,7 @@ public class KMeans {
                 System.out.print("\"bucket width\": " + bucketWidth + ",\n");
                 System.out.print("\"runs\": " + run + ",\n");
                 System.out.print("\"NMI\": " + nmiValue + ",\n");
-                System.out.print("\"bucketWidthsAuto\": " + bucketWidthsAuto + ",\n");
+                System.out.print("\"bucketWidthsAuto\": " + bucketWidthAuto + ",\n");
                 System.out.print("\"randomizedHashes\": " + randomizedHashes + ",\n");
                 System.out.print("\"time_initialisation\": " + (endInitialisationTime - startInitialisationTime) + ",\n");
                 System.out.print("\"time_hashing\": " + timeHashing + ",\n");
@@ -182,6 +159,61 @@ public class KMeans {
             }
         }
 
+    }
+
+    private void parseCommandLine(String[] args) {
+
+        // command line parsing
+
+        CommandLine config = readArgs(args);
+        p = null;
+        randomizedHashes = false;
+		bucketWidthAuto = false;
+
+		//command line inputs
+        try {
+		    p = (Integer.valueOf(config.getOptionValue("p")));
+        } catch (Exception e) {
+            System.out.println("Error commandline parsing: p\nAssuming default parameter p=6");
+        } finally {
+            if (p == null) {
+                p = 6;
+                bucketWidthAuto = false;
+                bucketWidth = 33;
+                randomizedHashes  = true;
+            }
+        }
+
+		try {
+		    bucketWidth = (Double.valueOf(config.getOptionValue("width")));
+        } catch (Exception e) {
+            System.out.println("Error commandline parsing: bucketWidth\nAssuming default paramter bucketWidth=30");
+        } finally {
+			if (bucketWidth == -1.0) bucketWidth = 30; //default
+        }
+
+		try {
+		    randomizedHashes = (Boolean.valueOf(config.getOptionValue("r")));
+        } catch (Exception e) {
+            System.out.println("Error commandline parsing: r\nAssuming default parameter false");
+        }
+
+		try {
+			bucketWidthAuto = (Boolean.valueOf(config.getOptionValue("widths_auto")));
+        } catch (Exception e) {
+            System.out.println("Error commandline parsing: widths_auto\nAssuming default paramter false");
+        }
+
+		try {
+			String tmp = config.getOptionValue("testdata");
+            if (tmp == null) {
+                throw new NullPointerException();
+            } else {
+                dataPath = tmp;
+            }
+        } catch (Exception e) {
+            System.out.println("Error commandline parsing: testdata\nDefaulting to ./LSH-nmi-corrected.csv");
+        }
     }
 
     /**
@@ -239,14 +271,15 @@ public class KMeans {
                 lines.add(line);
             }
         } catch (IOException|NullPointerException e) {
-            System.err.println("Konnte das File nicht finden\n" + e);
+            System.err.println("Error when reading the file. Is the path to testdata valid?" + 
+                    "\nCurrent path: " + dataPath + "\nAborting...");
             System.exit(1);
         } finally {
             try {
                 buff.close();
                 myFile.close();
             } catch (IOException|NullPointerException e) {
-                System.err.println("Error1 :" + e);
+                System.err.println("Error when closing the files.\nAborting...");
                 System.exit(1);
             }
         }
@@ -274,8 +307,14 @@ public class KMeans {
     }
 
     /**
-     * Erstes Argument Hashfunktion
-     * zweites Argument Bucket
+     * Hash all points once for fast bucket access.
+     *
+     * returns  represent the hashed data points in a different data format.
+     *          For each hashfunction buckets has a seperate hashmap.
+     *          These hashmap map the bucketID to the set of point indexes which are in this bucket.
+     *          So hash(...).get(hash_index).get(bucket_index) gets the points which belong to bucket bucket_index
+     *          for the hashfunction hash_index.
+     *
      */
     private ArrayList<HashMap<Integer, Set<Integer>>> hash(double[][] points) {
         ArrayList<HashMap<Integer, Set<Integer>>> buckets = new ArrayList<HashMap<Integer, Set<Integer>>>();
@@ -347,6 +386,19 @@ public class KMeans {
     
     
 
+    /**
+     * Run the algorithm a single time.
+     * 
+     * points   are the data points as returned by readFile(). 
+     * buckets  represent the hashed data points in a different data format.
+     *          For each hashfunction buckets has a seperate hashmap.
+     *          These hashmap map the bucketID to the set of point indexes which are in this bucket.
+     *          So buckets.get(hash_index).get(bucket_index) gets the points which belong to bucket bucket_index
+     *          for the hashfunction hash_index.
+     * p        parameter how many buckets need to agree to form a field as discussed in the PDF.
+     *
+     * returns an array that maps pointindex to cluster index. So algorithm(...)[10] is the clusterID of the tenth point.
+     */
     private Integer[] algorithm (double[][] points, ArrayList<HashMap<Integer, Set<Integer>>> buckets, Integer p) {
 
         /*
