@@ -1,6 +1,15 @@
 All figures are created from the data anylysis from Figures.ipynb. Data gathering was done in Analysis.ipynb.
 The files are jupyter notebooks with code  written in python.
 
+# Running the jar
+
+You can run the jar via
+
+`java -jar KMeans.java`
+
+The code we used to gather the data uses the un-jared version.
+If you want to use our data gather scripts you must be able to compile, see the points below.
+
 # Compiling the Java code
 
 To compile the java code you need a JDK. This was tested against java1.8. If you have `java` in your PATH, and `make` is installed
