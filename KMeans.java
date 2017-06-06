@@ -87,9 +87,9 @@ public class KMeans {
         }
 
 		try {
-			bucketWidthsAuto = (Boolean.valueOf(config.getOptionValue("widths_auto")));
+			bucketWidthsAuto = (Boolean.valueOf(config.getOptionValue("width_auto")));
         } catch (Exception e) {
-            System.out.println("Error commandline parsing: widths_auto");
+            System.out.println("Error commandline parsing: width_auto");
         }
 
 
